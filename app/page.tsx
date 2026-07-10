@@ -1,0 +1,94 @@
+import Link from "next/link";
+import { Mic2, Users2, Coffee, ArrowRight } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+const ZONES = [
+  {
+    icon: Mic2,
+    name: "Live & Podcast Studio",
+    description: "Soundproof rooms with lights, cameras, and streaming mics.",
+  },
+  {
+    icon: Users2,
+    name: "Private Meeting Rooms & Hot Desks",
+    description: "Flexible co-working areas and glass-walled meeting spaces.",
+  },
+  {
+    icon: Coffee,
+    name: "Creator Cafe",
+    description: "An in-house espresso bar with coffee, snacks, and energy drinks.",
+  },
+];
+
+export default function LandingPage() {
+  return (
+    <div>
+      <header className="border-b border-line bg-[var(--glass-bg-strong)] backdrop-blur-xl">
+        <div className="container-x flex h-16 items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex size-8 items-center justify-center rounded-[var(--radius-md)] bg-linear-to-br from-accent to-accent2 text-onaccent font-heading text-sm font-bold">
+              SS
+            </div>
+            <span className="font-heading text-sm font-semibold text-ink">Smart Space</span>
+          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/login">Log in</Link>
+          </Button>
+        </div>
+      </header>
+
+      <section className="container-x py-20 md:py-28">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="mb-5 inline-block rounded-[var(--radius-full)] bg-accent-soft px-3 py-1 text-xs font-medium text-accent-strong">
+            Space Rental & Creator Hub
+          </span>
+          <h1 className="font-heading text-5xl font-bold tracking-tight text-ink md:text-6xl">
+            Book your space.
+            <br />
+            <span className="bg-linear-to-r from-accent-strong to-accent2-strong bg-clip-text text-transparent">
+              Power your content.
+            </span>
+          </h1>
+          <p className="mt-6 text-lg text-ink2">
+            Smart Space is a high-tech co-working and content-creation facility for students and
+            creators — with a marketing analytics platform built in to turn every booking into an
+            insight.
+          </p>
+          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button asChild size="lg">
+              <Link href="/login?as=customer">
+                Book a space <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="secondary" size="lg">
+              <Link href="/login?as=marketing">
+                Marketing team login <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="container-x pb-24">
+        <div className="grid gap-6 md:grid-cols-3">
+          {ZONES.map((zone) => {
+            const Icon = zone.icon;
+            return (
+              <Card key={zone.name} variant="glass">
+                <CardContent>
+                  <div className="mb-3 flex size-10 items-center justify-center rounded-[var(--radius-md)] bg-accent-soft text-accent-strong">
+                    <Icon className="size-5" />
+                  </div>
+                  <h3 className="font-heading text-base font-semibold text-ink">{zone.name}</h3>
+                  <p className="mt-1 text-sm text-ink2">{zone.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
+}

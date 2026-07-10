@@ -1,0 +1,318 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Design tokens — BookingWeb "Smart Space" (Premium & Glassy)
+   Signature idea: Smart Space's real product includes literal
+   glass-walled meeting rooms — the frosted-glass surfaces here are
+   a direct echo of that, not a decorative trend pick.
+   Architecture: semantic tokens only, no raw hex in components.
+   Dark "glass" mode is the flagship default; light mode remains
+   fully supported underneath for a future toggle.
+   ============================================================ */
+
+:root {
+  /* Surfaces */
+  --bg-page: #0b0f19;
+  --bg-surface: #10172a;
+  --bg-surface-2: #182034;
+  --bg-inverse: #f1f5f9;
+
+  /* Ink */
+  --ink-primary: #f1f5f9;
+  --ink-secondary: #b6c2d9;
+  --ink-muted: #7c8aa8;
+  --ink-on-inverse: #1e293b;
+
+  /* Accent — Indigo primary */
+  --accent: #6366f1;
+  --accent-strong: #818cf8;
+  --accent-soft: rgba(99, 102, 241, 0.16);
+  --on-accent: #ffffff;
+
+  /* Accent 2 — Teal secondary (pairs with indigo; used for secondary CTAs,
+     chart series, and the signature gradient edge-glow) */
+  --accent-2: #2dd4bf;
+  --accent-2-strong: #5eead4;
+  --accent-2-soft: rgba(45, 212, 191, 0.16);
+  --on-accent-2: #042f2e;
+
+  /* Borders & focus */
+  --border-c: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --focus-ring: #a5b4fc;
+
+  /* Status */
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.14);
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.14);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.14);
+
+  /* Zone accents (badges / legends — categorical, not full chart palettes) */
+  --zone-studio: #f472b6;
+  --zone-studio-soft: rgba(244, 114, 182, 0.14);
+  --zone-coworking: #818cf8;
+  --zone-coworking-soft: rgba(129, 140, 248, 0.14);
+  --zone-cafe: #fbbf24;
+  --zone-cafe-soft: rgba(251, 191, 36, 0.14);
+
+  /* Glass surfaces — the signature treatment, used deliberately (metric
+     cards, sidebar, topbar), not on every panel */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-bg-strong: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-blur: 20px;
+
+  /* Elevation */
+  --e-1: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 1px 3px rgb(0 0 0 / 0.3);
+  --e-2: 0 0 0 1px var(--border-c), 0 12px 32px rgb(0 0 0 / 0.45);
+  --e-3: 0 0 0 1px var(--border-c), 0 24px 64px rgb(0 0 0 / 0.6);
+  /* Colored glow — the signature card's hover state (indigo → teal) */
+  --glow: 0 0 0 1px rgba(99, 102, 241, 0.4), 0 8px 28px rgba(99, 102, 241, 0.25),
+    0 12px 40px rgba(45, 212, 191, 0.15);
+
+  /* Motion */
+  --m-fast: 120ms;
+  --m-base: 200ms;
+  --m-slow: 320ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+[data-theme="light"] {
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-2: #f1f5f9;
+  --bg-inverse: #0f172a;
+
+  --ink-primary: #0f172a;
+  --ink-secondary: #475569;
+  --ink-muted: #5b6b80;
+  --ink-on-inverse: #cbd5e1;
+
+  --accent: #4f46e5;
+  --accent-strong: #4338ca;
+  --accent-soft: #e0e7ff;
+  --on-accent: #ffffff;
+
+  --accent-2: #0d9488;
+  --accent-2-strong: #0f766e;
+  --accent-2-soft: #ccfbf1;
+  --on-accent-2: #ffffff;
+
+  --border-c: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --focus-ring: #4338ca;
+
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --warning: #b45309;
+  --warning-soft: #fef3c7;
+
+  --zone-studio: #db2777;
+  --zone-studio-soft: #fce7f3;
+  --zone-coworking: #4f46e5;
+  --zone-coworking-soft: #e0e7ff;
+  --zone-cafe: #d97706;
+  --zone-cafe-soft: #fef3c7;
+
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-blur: 20px;
+
+  --e-1: 0 1px 2px rgb(15 23 42 / 0.06), 0 2px 8px rgb(15 23 42 / 0.06);
+  --e-2: 0 4px 12px rgb(15 23 42 / 0.1), 0 12px 32px rgb(15 23 42 / 0.1);
+  --e-3: 0 24px 64px rgb(15 23 42 / 0.22);
+  --glow: 0 0 0 1px rgba(79, 70, 229, 0.25), 0 8px 28px rgba(79, 70, 229, 0.15),
+    0 12px 40px rgba(13, 148, 136, 0.12);
+}
+
+@theme inline {
+  --color-page: var(--bg-page);
+  --color-surface: var(--bg-surface);
+  --color-surface2: var(--bg-surface-2);
+  --color-inverse: var(--bg-inverse);
+  --color-ink: var(--ink-primary);
+  --color-ink2: var(--ink-secondary);
+  --color-ink3: var(--ink-muted);
+  --color-oninverse: var(--ink-on-inverse);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-onaccent: var(--on-accent);
+  --color-accent2: var(--accent-2);
+  --color-accent2-strong: var(--accent-2-strong);
+  --color-accent2-soft: var(--accent-2-soft);
+  --color-onaccent2: var(--on-accent-2);
+  --color-line: var(--border-c);
+  --color-line-strong: var(--border-strong);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-zone-studio: var(--zone-studio);
+  --color-zone-studio-soft: var(--zone-studio-soft);
+  --color-zone-coworking: var(--zone-coworking);
+  --color-zone-coworking-soft: var(--zone-coworking-soft);
+  --color-zone-cafe: var(--zone-cafe);
+  --color-zone-cafe-soft: var(--zone-cafe-soft);
+  --color-glass: var(--glass-bg);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-bricolage), var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  --shadow-e1: var(--e-1);
+  --shadow-e2: var(--e-2);
+  --shadow-e3: var(--e-3);
+  --shadow-glow: var(--glow);
+}
+
+body {
+  background: var(--bg-page);
+  color: var(--ink-primary);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  z-index: 100;
+  padding: 8px 16px;
+  background: var(--bg-surface);
+  color: var(--accent-strong);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+}
+.skip-link:focus {
+  left: 8px;
+}
+
+/* Shared layout container: 1200px, gutters 16 → 32 → 48 */
+.container-x {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+@media (min-width: 768px) {
+  .container-x {
+    padding-inline: 32px;
+  }
+}
+@media (min-width: 1280px) {
+  .container-x {
+    padding-inline: 48px;
+  }
+}
+
+/* Ambient mesh background — sits behind glass panels. Deliberately faint
+   and fixed so it reads as atmosphere, not decoration. */
+.mesh-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bg-page);
+  background-image: radial-gradient(700px 500px at 12% -10%, rgba(99, 102, 241, 0.16), transparent 60%),
+    radial-gradient(600px 480px at 100% 10%, rgba(45, 212, 191, 0.12), transparent 55%),
+    radial-gradient(900px 700px at 50% 120%, rgba(99, 102, 241, 0.08), transparent 60%);
+}
+[data-theme="light"] .mesh-bg {
+  background-image: radial-gradient(700px 500px at 12% -10%, rgba(79, 70, 229, 0.08), transparent 60%),
+    radial-gradient(600px 480px at 100% 10%, rgba(13, 148, 136, 0.06), transparent 55%),
+    radial-gradient(900px 700px at 50% 120%, rgba(79, 70, 229, 0.04), transparent 60%);
+}
+
+/* Card resting/hover behavior (elevation communicates state) */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-c);
+  border-radius: var(--radius-lg);
+  transition:
+    box-shadow var(--m-fast) var(--ease-out),
+    transform var(--m-fast) var(--ease-out),
+    border-color var(--m-fast) var(--ease-out);
+}
+.card-hover:hover {
+  box-shadow: var(--e-1);
+  border-color: var(--border-strong);
+}
+
+/* Glass card — the signature surface. Frosted, gradient-edged, glows on
+   hover. Used deliberately (metric cards, key panels), not everywhere. */
+.card-glass {
+  position: relative;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  overflow: hidden;
+  transition: box-shadow var(--m-base) var(--ease-out), transform var(--m-base) var(--ease-out);
+}
+.card-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent);
+  opacity: 0.7;
+}
+.card-glass:hover {
+  box-shadow: var(--glow);
+  transform: translateY(-2px);
+}
+
+/* Metric-card stat number — mono, tabular, the dashboard's signature element */
+.text-stat {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 40px;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-glass:hover {
+    transform: none;
+  }
+}
