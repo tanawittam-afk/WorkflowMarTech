@@ -26,9 +26,12 @@ Built from the user's full brief (see `BriefMartech/WorkFlowLastest.png` — bus
 - CDP-emulated 390px: `scrollWidth == clientWidth` (no horizontal overflow); full-page screenshots at 390 and 1440 reviewed — all charts render
 - ⚠️ Gotcha for future sessions: plain `chrome --headless --screenshot --window-size=390,...` on Windows clamps the window to ~469px and crops the image to 390 → looks like page overflow but isn't. Use CDP `Emulation.setDeviceMetricsOverride` for mobile checks (script pattern in scratchpad `mobile-shot.mjs`).
 
-## State / not done
+## Git & deploy (2026-07-10)
 
-- BookingWeb is **not yet committed** to git (whole folder is untracked; `.gitignore` excludes node_modules/.next). Not deployed this session.
+- **Git:** own repo at https://github.com/tanawittam-afk/WorkflowMarTech (branch `main`; nested repo inside the parent Claude Code workspace repo — git identity set locally). First commit `322d61b` = full app + /martech.
+- **Vercel:** production at **https://bookingweb-smart-space.vercel.app** (project `bookingweb-smart-space`, CLI-linked via `.vercel/`, deployed with `vercel --prod`). Prod smoke 5/5 routes 200 (`/martech`, `/`, `/dashboard`, `/book`, `/analytics`) + /martech content verified. Note: Vercel deploys from local files via CLI, NOT from the GitHub repo — pushing to GitHub alone does not redeploy.
+
+## State / not done
 - Known pre-existing loose end: `submitCsat` exists in the store but no UI calls it (customers can't submit a new CSAT rating).
 - No cross-link from the main landing page to `/martech` (page links out to `/` and `/dashboard`, but nothing links in). Add one if the user wants it discoverable.
 
