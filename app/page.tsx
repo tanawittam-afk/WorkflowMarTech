@@ -71,7 +71,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="container-x pb-24">
+      <section className="container-x pb-16">
         <div className="grid gap-6 md:grid-cols-3">
           {ZONES.map((zone) => {
             const Icon = zone.icon;
@@ -88,6 +88,31 @@ export default function LandingPage() {
             );
           })}
         </div>
+      </section>
+
+      <section className="container-x pb-24">
+        <Card variant="glass">
+          <CardContent className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+            <div className="max-w-xl">
+              <span className="mb-3 inline-block rounded-[var(--radius-full)] bg-accent-soft px-3 py-1 text-xs font-medium text-accent-strong">
+                Marketing OS
+              </span>
+              <h2 className="font-heading text-2xl font-bold text-ink">
+                Every booking becomes a marketing insight.
+              </h2>
+              <p className="mt-2 text-sm text-ink2">
+                See the closed-loop engine behind Smart Space — how one booking flows through
+                acquisition, conversion, service, and retention, and comes back as the next
+                campaign. Available in English and Thai.
+              </p>
+            </div>
+            <Button asChild variant="secondary" size="lg">
+              <Link href="/martech">
+                See how the engine works <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );

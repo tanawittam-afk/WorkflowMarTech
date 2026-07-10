@@ -2,10 +2,16 @@
 
 /**
  * Closed-Loop Marketing & Room Booking Ecosystem — single-page visualization
- * for Marketing Users. Self-contained: mock data + all sections live in this
- * file. Deliberately does NOT use the app's dark-glass theme tokens — this
- * page is an enterprise-SaaS "clean white / blue" surface regardless of the
- * visitor's theme preference.
+ * for Marketing Users of a co-working space rental business. Self-contained:
+ * mock data + all sections live in this file. Deliberately does NOT use the
+ * app's dark-glass theme tokens — this page is an enterprise-SaaS
+ * "clean white / blue" surface regardless of the visitor's theme preference.
+ *
+ * Bilingual: every display string is an LStr { en, th } resolved through a
+ * LangContext (EN default, persisted to localStorage). Technical vocabulary —
+ * event names, CRM field names, campaign slugs, brand names, metric acronyms —
+ * stays English in both languages. Thai glyphs render via the Anuphan font
+ * variable passed in from page.tsx (Bricolage/Inter have no Thai coverage).
  *
  * Signature device: phase lineage colors. Each journey phase (Acquisition →
  * Retention) owns one accent color, and that color follows its data through
@@ -15,11 +21,14 @@
 
 import Link from "next/link";
 import {
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
@@ -63,6 +72,54 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+
+/* ============================================================
+   Language plumbing
+   ============================================================ */
+
+type Lang = "en" | "th";
+type LStr = { en: string; th: string };
+/** Content item: LStr when it translates, plain string when it is shared
+    technical vocabulary (brands, events, field names, acronyms). */
+type Item = string | LStr;
+
+const LANG_STORAGE_KEY = "martech-lang";
+
+/* localStorage as an external store — hydration-safe (server snapshot is
+   always "en"; the stored preference applies right after hydration). */
+let langListeners: Array<() => void> = [];
+
+function subscribeLang(listener: () => void) {
+  langListeners.push(listener);
+  return () => {
+    langListeners = langListeners.filter((l) => l !== listener);
+  };
+}
+
+function getLangSnapshot(): Lang {
+  try {
+    return localStorage.getItem(LANG_STORAGE_KEY) === "th" ? "th" : "en";
+  } catch {
+    return "en";
+  }
+}
+
+function setStoredLang(lang: Lang) {
+  try {
+    localStorage.setItem(LANG_STORAGE_KEY, lang);
+  } catch {}
+  for (const listener of langListeners) listener();
+}
+
+const LangContext = createContext<Lang>("en");
+
+function useT() {
+  const lang = useContext(LangContext);
+  return useCallback(
+    (s: Item) => (typeof s === "string" ? s : s[lang]),
+    [lang],
+  );
+}
 
 /* ============================================================
    Phase lineage colors (Tailwind literals so v4 picks them up)
@@ -128,59 +185,66 @@ const PHASE_STYLE: Record<PhaseKey, PhaseStyle> = {
 };
 
 /* ============================================================
-   Mock data
+   Mock data (bilingual)
    ============================================================ */
 
-const KPIS = [
+const KPIS: {
+  label: LStr;
+  value: number;
+  format: (v: number) => string;
+  delta: LStr;
+  icon: typeof Users;
+}[] = [
   {
-    label: "Website Visitors",
+    label: { en: "Website Visitors", th: "ผู้เข้าชมเว็บไซต์" },
     value: 48200,
     format: (v: number) => `${Math.round(v).toLocaleString("en-US")}`,
-    delta: "+12.4% vs last month",
+    delta: { en: "+12.4% vs last month", th: "+12.4% จากเดือนก่อน" },
     icon: Users,
   },
   {
-    label: "Bookings",
+    label: { en: "Bookings", th: "การจอง" },
     value: 1284,
     format: (v: number) => `${Math.round(v).toLocaleString("en-US")}`,
-    delta: "+8.1% vs last month",
+    delta: { en: "+8.1% vs last month", th: "+8.1% จากเดือนก่อน" },
     icon: CalendarCheck,
   },
   {
-    label: "Revenue",
+    label: { en: "Revenue", th: "รายได้" },
     value: 642000,
     format: (v: number) => `฿${Math.round(v).toLocaleString("en-US")}`,
-    delta: "+15.2% vs last month",
+    delta: { en: "+15.2% vs last month", th: "+15.2% จากเดือนก่อน" },
     icon: Banknote,
   },
   {
-    label: "ROAS",
+    label: { en: "ROAS", th: "ROAS" },
     value: 4.8,
     format: (v: number) => `${v.toFixed(1)}x`,
-    delta: "+0.6x vs last month",
+    delta: { en: "+0.6x vs last month", th: "+0.6x จากเดือนก่อน" },
     icon: Target,
   },
   {
-    label: "Repeat Booking Rate",
+    label: { en: "Repeat Booking Rate", th: "อัตราการจองซ้ำ" },
     value: 38,
     format: (v: number) => `${Math.round(v)}%`,
-    delta: "+5pt vs last month",
+    delta: { en: "+5pt vs last month", th: "+5pt จากเดือนก่อน" },
     icon: Repeat,
   },
 ];
 
 type PhaseGroup = {
-  label: string;
-  items: string[];
+  label: LStr;
+  items: Item[];
   flow?: boolean; // render items as a step sequence instead of chips
 };
 
 type Phase = {
   key: PhaseKey;
   num: string;
-  name: string;
+  name: LStr;
+  shortName: LStr; // for chips
   icon: typeof Megaphone;
-  tagline: string;
+  tagline: LStr;
   groups: PhaseGroup[];
 };
 
@@ -188,134 +252,180 @@ const PHASES: Phase[] = [
   {
     key: "acquisition",
     num: "01",
-    name: "Acquisition",
+    name: { en: "Acquisition", th: "หาลูกค้า (Acquisition)" },
+    shortName: { en: "Acquisition", th: "หาลูกค้า" },
     icon: Megaphone,
-    tagline: "Campaigns bring trackable traffic to the booking site.",
+    tagline: {
+      en: "Campaigns bring trackable traffic to the booking site.",
+      th: "แคมเปญพาทราฟฟิกที่ติดตามได้เข้าสู่เว็บจองพื้นที่",
+    },
     groups: [
       {
-        label: "Traffic Sources",
+        label: { en: "Traffic Sources", th: "ช่องทางทราฟฟิก" },
         items: ["Facebook Ads", "Google Search", "SEO", "LINE OA", "QR Code"],
       },
       {
-        label: "Marketing Tracking",
+        label: { en: "Marketing Tracking", th: "เครื่องมือติดตาม" },
         items: ["UTM Parameters", "Meta Pixel", "Google Analytics 4"],
       },
       {
-        label: "Captured Data",
-        items: ["Source", "Campaign", "Medium", "Landing Page"],
+        label: { en: "Captured Data", th: "ข้อมูลที่เก็บ" },
+        items: [
+          { en: "Source", th: "แหล่งที่มา (Source)" },
+          { en: "Campaign", th: "แคมเปญ (Campaign)" },
+          { en: "Medium", th: "สื่อ (Medium)" },
+          { en: "Landing Page", th: "หน้า Landing" },
+        ],
       },
     ],
   },
   {
     key: "conversion",
     num: "02",
-    name: "Conversion",
+    name: { en: "Conversion", th: "เปลี่ยนเป็นการจอง (Conversion)" },
+    shortName: { en: "Conversion", th: "คอนเวอร์ชัน" },
     icon: MousePointerClick,
-    tagline: "Visitors become booking intent — enriched with who they are.",
+    tagline: {
+      en: "Visitors become booking intent — enriched with who they are.",
+      th: "ผู้เข้าชมกลายเป็นความตั้งใจจอง พร้อมข้อมูลว่าเขาคือใคร",
+    },
     groups: [
       {
-        label: "Customer Actions",
+        label: { en: "Customer Actions", th: "การกระทำของลูกค้า" },
         flow: true,
         items: [
-          "View Room",
-          "Select Room",
-          "Check Availability",
-          "Enter Booking Information",
+          { en: "View Room", th: "ดูรายละเอียดห้อง/พื้นที่" },
+          { en: "Select Room", th: "เลือกห้องและวัน-เวลา" },
+          { en: "Check Availability", th: "เช็คพื้นที่ว่าง" },
+          { en: "Enter Booking Information", th: "กรอกข้อมูลการจอง" },
         ],
       },
       {
-        label: "Marketing Features",
+        label: { en: "Marketing Features", th: "ฟีเจอร์การตลาด" },
         items: [
           "Promo Code",
-          "Dynamic Pricing",
-          "Usage Purpose Selection",
-          "Customer Type Selection",
+          { en: "Dynamic Pricing", th: "ราคาแบบไดนามิก" },
+          { en: "Usage Purpose Selection", th: "เลือกวัตถุประสงค์การใช้งาน" },
+          { en: "Customer Type Selection", th: "เลือกประเภทลูกค้า" },
         ],
       },
       {
-        label: "Captured Data",
-        items: ["Customer Type", "Usage Purpose", "Promo Code", "Booking Intent"],
+        label: { en: "Captured Data", th: "ข้อมูลที่เก็บ" },
+        items: [
+          { en: "Customer Type", th: "ประเภทลูกค้า" },
+          { en: "Usage Purpose", th: "วัตถุประสงค์การใช้งาน" },
+          "Promo Code",
+          { en: "Booking Intent", th: "ความตั้งใจจอง" },
+        ],
       },
     ],
   },
   {
     key: "purchase",
     num: "03",
-    name: "Purchase",
+    name: { en: "Purchase", th: "ชำระเงิน (Purchase)" },
+    shortName: { en: "Purchase", th: "ชำระเงิน" },
     icon: CreditCard,
-    tagline: "Payment closes the funnel and fires the purchase event.",
+    tagline: {
+      en: "Payment closes the funnel and fires the purchase event.",
+      th: "การชำระเงินปิดฟันเนลและยิง Purchase Event",
+    },
     groups: [
       {
-        label: "Process",
+        label: { en: "Process", th: "ขั้นตอน" },
         flow: true,
         items: [
-          "Customer Payment",
-          "Staff Verification",
-          "Booking Confirmation",
-          "QR Generation",
+          { en: "Customer Payment", th: "ลูกค้าชำระเงิน" },
+          { en: "Staff Verification", th: "เจ้าหน้าที่ตรวจสอบ" },
+          { en: "Booking Confirmation", th: "ยืนยันการจอง" },
+          { en: "QR Generation", th: "สร้าง QR Code" },
         ],
       },
       {
-        label: "Marketing Tracking",
+        label: { en: "Marketing Tracking", th: "เครื่องมือติดตาม" },
         items: ["Purchase Event"],
       },
       {
-        label: "Metrics",
-        items: ["Revenue", "Conversion Rate", "ROAS"],
+        label: { en: "Metrics", th: "ตัวชี้วัด" },
+        items: [
+          { en: "Revenue", th: "รายได้" },
+          { en: "Conversion Rate", th: "อัตราคอนเวอร์ชัน" },
+          "ROAS",
+        ],
       },
     ],
   },
   {
     key: "service",
     num: "04",
-    name: "Service",
+    name: { en: "Service", th: "ใช้บริการ (Service)" },
+    shortName: { en: "Service", th: "ใช้บริการ" },
     icon: DoorOpen,
-    tagline: "The visit itself becomes behavioral data.",
+    tagline: {
+      en: "Every visit to the co-working space becomes behavioral data.",
+      th: "ทุกการเข้าใช้พื้นที่ Co-Working กลายเป็นข้อมูลพฤติกรรม",
+    },
     groups: [
       {
-        label: "Process",
+        label: { en: "Process", th: "ขั้นตอน" },
         flow: true,
         items: [
-          "Check-in",
-          "Room Usage",
-          "Check-out",
-          "Cleaning",
-          "Room Available",
+          { en: "Check-in", th: "เช็คอิน" },
+          { en: "Room Usage", th: "ใช้งานพื้นที่" },
+          { en: "Check-out", th: "เช็คเอาท์" },
+          { en: "Cleaning", th: "ทำความสะอาด" },
+          { en: "Room Available", th: "พื้นที่พร้อมให้จองต่อ" },
         ],
       },
       {
-        label: "Captured Data",
-        items: ["Check-in Time", "Check-out Time", "Room Utilization"],
+        label: { en: "Captured Data", th: "ข้อมูลที่เก็บ" },
+        items: [
+          { en: "Check-in Time", th: "เวลาเช็คอิน" },
+          { en: "Check-out Time", th: "เวลาเช็คเอาท์" },
+          { en: "Room Utilization", th: "อัตราการใช้พื้นที่" },
+        ],
       },
     ],
   },
   {
     key: "retention",
     num: "05",
-    name: "Retention & Optimization",
+    name: {
+      en: "Retention & Optimization",
+      th: "รักษาลูกค้า & เพิ่มการจองซ้ำ",
+    },
+    shortName: { en: "Retention", th: "รักษาลูกค้า" },
     icon: Repeat,
-    tagline: "CRM turns one booking into the next campaign.",
+    tagline: {
+      en: "CRM turns one booking into the next campaign.",
+      th: "CRM เปลี่ยนหนึ่งการจองให้เป็นแคมเปญถัดไป",
+    },
     groups: [
       {
-        label: "Features",
+        label: { en: "Features", th: "เครื่องมือ" },
         items: [
-          "CRM Database",
-          "Customer Segmentation",
-          "Marketing Automation",
-          "Retargeting Campaigns",
-          "NPS Collection",
+          { en: "CRM Database", th: "ฐานข้อมูล CRM" },
+          { en: "Customer Segmentation", th: "แบ่งกลุ่มลูกค้า" },
+          { en: "Marketing Automation", th: "การตลาดอัตโนมัติ" },
+          { en: "Retargeting Campaigns", th: "แคมเปญ Retargeting" },
+          { en: "NPS Collection", th: "เก็บคะแนน NPS" },
         ],
       },
       {
-        label: "Segments",
-        items: ["Students", "Corporate", "Tutors", "Content Creators"],
+        label: { en: "Segments", th: "กลุ่มลูกค้า" },
+        items: [
+          { en: "Students", th: "นักศึกษา" },
+          { en: "Corporate", th: "องค์กร" },
+          { en: "Tutors", th: "ติวเตอร์" },
+          { en: "Content Creators", th: "ครีเอเตอร์" },
+        ],
       },
       {
-        label: "Automation Examples",
+        label: { en: "Automation Examples", th: "ตัวอย่างการตลาดอัตโนมัติ" },
         items: [
-          "Exam Season Promotion",
-          "Corporate Rebooking Campaign",
-          "Happy Hour Promotion",
+          { en: "Exam Season Promotion", th: "โปรโมชันช่วงสอบ" },
+          { en: "Corporate Rebooking Campaign", th: "แคมเปญจองซ้ำลูกค้าองค์กร" },
+          { en: "Happy Hour Promotion", th: "โปรโมชัน Happy Hour" },
         ],
       },
     ],
@@ -338,15 +448,14 @@ const CRM_FIELDS: CrmField[] = [
   { name: "booking_count", type: "int", sample: "7", source: "purchase" },
   { name: "revenue", type: "currency", sample: "฿5,250", source: "purchase" },
   { name: "nps_score", type: "int 0–10", sample: "9", source: "retention" },
-  { name: "preferred_room", type: "text", sample: "Studio B", source: "service" },
+  { name: "preferred_room", type: "text", sample: "Meeting Room B", source: "service" },
   { name: "preferred_time_slot", type: "text", sample: "18:00–20:00", source: "service" },
 ];
 
-const EVENT_GROUPS: { phase: PhaseKey; label: string; events: string[] }[] = [
-  { phase: "acquisition", label: "Acquisition", events: ["page_view"] },
+const EVENT_GROUPS: { phase: PhaseKey; events: string[] }[] = [
+  { phase: "acquisition", events: ["page_view"] },
   {
     phase: "conversion",
-    label: "Conversion",
     events: [
       "view_room",
       "select_room",
@@ -357,36 +466,46 @@ const EVENT_GROUPS: { phase: PhaseKey; label: string; events: string[] }[] = [
   },
   {
     phase: "purchase",
-    label: "Purchase",
     events: ["payment_start", "purchase", "qr_generated"],
   },
-  { phase: "service", label: "Service", events: ["check_in", "check_out"] },
+  { phase: "service", events: ["check_in", "check_out"] },
   {
     phase: "retention",
-    label: "Retention",
     events: ["survey_completed", "repeat_booking"],
   },
 ];
 
-const DESTINATIONS = [
+const DESTINATIONS: { name: string; note: LStr; icon: typeof BarChart3 }[] = [
   {
     name: "GA4",
-    note: "All 13 events land in Google Analytics 4 for funnel & attribution reports.",
+    note: {
+      en: "All 13 events land in Google Analytics 4 for funnel & attribution reports.",
+      th: "อีเวนต์ทั้ง 13 ตัวส่งเข้า Google Analytics 4 สำหรับรายงานฟันเนลและ attribution",
+    },
     icon: BarChart3,
   },
   {
     name: "Meta Pixel",
-    note: "Funnel and purchase events feed ad optimization via Pixel + CAPI.",
+    note: {
+      en: "Funnel and purchase events feed ad optimization via Pixel + CAPI.",
+      th: "อีเวนต์ฟันเนลและการซื้อช่วยให้โฆษณาแม่นขึ้นผ่าน Pixel + CAPI",
+    },
     icon: Radio,
   },
   {
     name: "CRM",
-    note: "Events join to a customer identity and update the profile in real time.",
+    note: {
+      en: "Events join to a customer identity and update the profile in real time.",
+      th: "อีเวนต์ผูกกับตัวตนลูกค้าและอัปเดตโปรไฟล์แบบเรียลไทม์",
+    },
     icon: Database,
   },
   {
     name: "Dashboard",
-    note: "Events aggregate into the daily metrics marketing reviews each morning.",
+    note: {
+      en: "Events aggregate into the daily metrics marketing reviews each morning.",
+      th: "อีเวนต์ถูกรวมเป็นตัวชี้วัดรายวันที่ทีมการตลาดดูทุกเช้า",
+    },
     icon: LayoutDashboard,
   },
 ];
@@ -405,7 +524,7 @@ const CAMPAIGNS = [
   { campaign: "exam-season-fb", bookings: 212 },
   { campaign: "corporate-rebook-line", bookings: 164 },
   { campaign: "happy-hour-line", bookings: 141 },
-  { campaign: "creator-studio-google", bookings: 118 },
+  { campaign: "monthly-desk-google", bookings: 118 },
   { campaign: "organic / none", bookings: 86 },
 ];
 
@@ -419,12 +538,12 @@ const REVENUE_TREND = [
 ];
 
 const POPULAR_ROOMS = [
-  { room: "Studio B", bookings: 176 },
-  { room: "Studio A", bookings: 158 },
-  { room: "Meeting 1", bookings: 121 },
-  { room: "Hot Desk", bookings: 104 },
-  { room: "Meeting 2", bookings: 92 },
-  { room: "Cafe Bar", bookings: 71 },
+  { room: "Meeting A", bookings: 176 },
+  { room: "Meeting B", bookings: 158 },
+  { room: "Hot Desk", bookings: 121 },
+  { room: "Office 1", bookings: 104 },
+  { room: "Office 2", bookings: 92 },
+  { room: "Event Space", bookings: 71 },
 ];
 
 const PEAK_HOURS = [
@@ -444,18 +563,30 @@ const PEAK_HOURS = [
   { hour: "22", load: 0.3 },
 ];
 
-const GOALS = [
-  "Lower cost per booking with attribution you can trust",
-  "Grow revenue and ROI campaign by campaign",
-  "Retain customers and increase repeat bookings",
-  "Plan the next campaign from data, not guesswork",
+const GOALS: LStr[] = [
+  {
+    en: "Lower cost per booking with attribution you can trust",
+    th: "ลดต้นทุนต่อการจองด้วย attribution ที่เชื่อถือได้",
+  },
+  {
+    en: "Grow revenue and ROI campaign by campaign",
+    th: "เพิ่มรายได้และ ROI ทีละแคมเปญ",
+  },
+  {
+    en: "Retain customers and increase repeat bookings",
+    th: "รักษาลูกค้าเดิมและเพิ่มการจองซ้ำ",
+  },
+  {
+    en: "Plan the next campaign from data, not guesswork",
+    th: "วางแผนแคมเปญถัดไปจากข้อมูล ไม่ใช่การเดา",
+  },
 ];
 
-const NAV_LINKS = [
-  { href: "#workflow", label: "Workflow" },
-  { href: "#crm", label: "CRM" },
-  { href: "#events", label: "Events" },
-  { href: "#dashboard", label: "Dashboard" },
+const NAV_LINKS: { href: string; label: LStr }[] = [
+  { href: "#workflow", label: { en: "Workflow", th: "เวิร์กโฟลว์" } },
+  { href: "#crm", label: { en: "CRM", th: "CRM" } },
+  { href: "#events", label: { en: "Events", th: "อีเวนต์" } },
+  { href: "#dashboard", label: { en: "Dashboard", th: "แดชบอร์ด" } },
 ];
 
 /* ============================================================
@@ -463,6 +594,9 @@ const NAV_LINKS = [
    ============================================================ */
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
+
+const HEADING_FONT =
+  "font-[family-name:var(--font-bricolage),var(--font-anuphan)]";
 
 function Reveal({
   children,
@@ -525,34 +659,40 @@ function SectionHeading({
   blurb,
 }: {
   id?: string;
-  eyebrow: string;
-  title: string;
-  blurb: string;
+  eyebrow: LStr;
+  title: LStr;
+  blurb: LStr;
 }) {
+  const t = useT();
   return (
     <Reveal>
       <div id={id} className="mx-auto max-w-2xl scroll-mt-28 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">
-          {eyebrow}
+          {t(eyebrow)}
         </p>
-        <h2 className="mt-3 font-[family-name:var(--font-bricolage)] text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          {title}
+        <h2
+          className={`mt-3 ${HEADING_FONT} text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl`}
+        >
+          {t(title)}
         </h2>
-        <p className="mt-3 text-base leading-relaxed text-slate-600">{blurb}</p>
+        <p className="mt-3 text-base leading-relaxed text-slate-600">
+          {t(blurb)}
+        </p>
       </div>
     </Reveal>
   );
 }
 
 function PhaseChip({ phase }: { phase: PhaseKey }) {
+  const t = useT();
   const style = PHASE_STYLE[phase];
-  const label = PHASES.find((p) => p.key === phase)?.name.split(" ")[0];
+  const def = PHASES.find((p) => p.key === phase);
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium ${style.chip}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
-      {label}
+      {def ? t(def.shortName) : phase}
     </span>
   );
 }
@@ -561,7 +701,46 @@ function PhaseChip({ phase }: { phase: PhaseKey }) {
    Sections
    ============================================================ */
 
-function TopNav() {
+function LangToggle({
+  lang,
+  onChange,
+}: {
+  lang: Lang;
+  onChange: (l: Lang) => void;
+}) {
+  return (
+    <div
+      className="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5"
+      role="group"
+      aria-label="Language"
+    >
+      {(["en", "th"] as const).map((l) => (
+        <button
+          key={l}
+          type="button"
+          aria-pressed={lang === l}
+          onClick={() => onChange(l)}
+          className={`rounded-md px-2.5 py-1 text-xs font-semibold uppercase transition-colors ${
+            lang === l
+              ? "bg-white text-blue-600 shadow-sm"
+              : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          {l === "en" ? "EN" : "ไทย"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function TopNav({
+  lang,
+  onLangChange,
+}: {
+  lang: Lang;
+  onLangChange: (l: Lang) => void;
+}) {
+  const t = useT();
   const scrollTo = useCallback((href: string) => {
     document
       .querySelector(href)
@@ -570,34 +749,57 @@ function TopNav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600 text-[11px] font-bold text-white">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+        <Link href="/" className="flex min-w-0 items-center gap-2.5">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-600 text-[11px] font-bold text-white">
             SS
           </span>
-          <span className="text-sm font-semibold text-slate-900">
+          <span className="truncate text-sm font-semibold text-slate-900">
             Smart Space{" "}
             <span className="font-normal text-slate-400">/ Marketing OS</span>
           </span>
         </Link>
-        <nav className="hidden items-center gap-1 sm:flex">
-          {NAV_LINKS.map((link) => (
-            <button
-              key={link.href}
-              type="button"
-              onClick={() => scrollTo(link.href)}
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
-            >
-              {link.label}
-            </button>
-          ))}
-        </nav>
+        <div className="flex items-center gap-2">
+          <nav className="hidden items-center gap-1 sm:flex">
+            {NAV_LINKS.map((link) => (
+              <button
+                key={link.href}
+                type="button"
+                onClick={() => scrollTo(link.href)}
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              >
+                {t(link.label)}
+              </button>
+            ))}
+          </nav>
+          <LangToggle lang={lang} onChange={onLangChange} />
+        </div>
       </div>
     </header>
   );
 }
 
+const HERO = {
+  badge: {
+    en: "Marketing-Centric Room Booking Workflow",
+    th: "เวิร์กโฟลว์การจองพื้นที่ที่ขับเคลื่อนด้วยการตลาด",
+  },
+  titlePre: { en: "Closed-Loop Marketing & ", th: "ระบบการตลาดครบวงจรสำหรับ" },
+  titleHighlight: {
+    en: "Room Booking",
+    th: "ธุรกิจเช่าพื้นที่ Co-Working",
+  },
+  titlePost: { en: " Ecosystem", th: "" },
+  subtitle: {
+    en: "Transform your co-working space rental business into a data-driven marketing engine.",
+    th: "เปลี่ยนธุรกิจให้เช่าพื้นที่ Co-Working ให้กลายเป็นเครื่องยนต์การตลาดที่ขับเคลื่อนด้วยข้อมูล",
+  },
+  ctaPrimary: { en: "Explore the workflow", th: "สำรวจเวิร์กโฟลว์" },
+  ctaSecondary: { en: "Open live dashboard", th: "เปิดแดชบอร์ดจริง" },
+} as const;
+
 function Hero() {
+  const t = useT();
   const reduced = useReducedMotion();
   const scrollToWorkflow = useCallback(() => {
     document
@@ -620,16 +822,18 @@ function Hero() {
           className="mx-auto max-w-3xl text-center"
         >
           <p className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-            <Megaphone className="h-3.5 w-3.5" aria-hidden="true" />
-            Marketing-Centric Room Booking Workflow
+            <Megaphone className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            {t(HERO.badge)}
           </p>
-          <h1 className="mt-6 font-[family-name:var(--font-bricolage)] text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-[3.4rem] lg:leading-[1.08]">
-            Closed-Loop Marketing &{" "}
-            <span className="text-blue-600">Room Booking</span> Ecosystem
+          <h1
+            className={`mt-6 ${HEADING_FONT} text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-[3.4rem] lg:leading-[1.12]`}
+          >
+            {t(HERO.titlePre)}
+            <span className="text-blue-600">{t(HERO.titleHighlight)}</span>
+            {t(HERO.titlePost)}
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-slate-600">
-            Transform room booking operations into a data-driven marketing
-            engine.
+            {t(HERO.subtitle)}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <button
@@ -637,14 +841,14 @@ function Hero() {
               onClick={scrollToWorkflow}
               className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
-              Explore the workflow
+              {t(HERO.ctaPrimary)}
               <ArrowDown className="h-4 w-4" aria-hidden="true" />
             </button>
             <Link
               href="/dashboard"
               className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >
-              Open live dashboard
+              {t(HERO.ctaSecondary)}
             </Link>
           </div>
         </motion.div>
@@ -652,17 +856,22 @@ function Hero() {
         {/* KPI cards */}
         <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {KPIS.map((kpi, i) => (
-            <Reveal key={kpi.label} delay={i * 0.07}>
+            <Reveal key={kpi.label.en} delay={i * 0.07}>
               <div className="h-full rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
                 <div className="flex items-center gap-2 text-slate-500">
-                  <kpi.icon className="h-4 w-4 text-blue-600" aria-hidden="true" />
-                  <span className="text-xs font-medium">{kpi.label}</span>
+                  <kpi.icon
+                    className="h-4 w-4 shrink-0 text-blue-600"
+                    aria-hidden="true"
+                  />
+                  <span className="text-xs font-medium">{t(kpi.label)}</span>
                 </div>
-                <p className="mt-3 font-[family-name:var(--font-bricolage)] text-2xl font-bold tabular-nums text-slate-900">
+                <p
+                  className={`mt-3 ${HEADING_FONT} text-2xl font-bold tabular-nums text-slate-900`}
+                >
                   <CountUp value={kpi.value} format={kpi.format} />
                 </p>
                 <p className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                  {kpi.delta}
+                  {t(kpi.delta)}
                 </p>
               </div>
             </Reveal>
@@ -673,15 +882,22 @@ function Hero() {
   );
 }
 
+const LOOP_LABEL: LStr = {
+  en: "Closed loop — retention data feeds the next acquisition campaign",
+  th: "วงจรปิด — ข้อมูลการรักษาลูกค้าย้อนกลับไปขับเคลื่อนแคมเปญหาลูกค้ารอบถัดไป",
+};
+
 function ClosedLoopArrow() {
+  const t = useT();
   const reduced = useReducedMotion();
   return (
-    <div className="mt-6 hidden lg:block" aria-hidden="true">
+    <div className="mt-6 hidden lg:block">
       <svg
         viewBox="0 0 1000 64"
         preserveAspectRatio="none"
         className="h-14 w-full"
         fill="none"
+        aria-hidden="true"
       >
         <defs>
           <marker
@@ -708,13 +924,26 @@ function ClosedLoopArrow() {
         />
       </svg>
       <p className="text-center text-xs font-medium text-rose-600">
-        Closed loop — retention data feeds the next acquisition campaign
+        {t(LOOP_LABEL)}
       </p>
     </div>
   );
 }
 
+const WORKFLOW_HEADING = {
+  eyebrow: { en: "Customer journey", th: "เส้นทางลูกค้า" },
+  title: {
+    en: "One journey, five phases, zero blind spots",
+    th: "หนึ่งเส้นทาง ห้าเฟส เห็นข้อมูลครบทุกจุด",
+  },
+  blurb: {
+    en: "Every phase captures data marketing can act on. Select a phase to see what happens in it — and what it records.",
+    th: "ทุกเฟสเก็บข้อมูลที่ทีมการตลาดนำไปใช้ต่อได้ เลือกเฟสเพื่อดูว่าเกิดอะไรขึ้นและเก็บข้อมูลอะไรบ้าง",
+  },
+} as const;
+
 function WorkflowSection() {
+  const t = useT();
   const [activeKey, setActiveKey] = useState<PhaseKey>("acquisition");
   const active = useMemo(
     () => PHASES.find((p) => p.key === activeKey) ?? PHASES[0],
@@ -726,9 +955,9 @@ function WorkflowSection() {
     <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <SectionHeading
         id="workflow"
-        eyebrow="Customer journey"
-        title="One journey, five phases, zero blind spots"
-        blurb="Every phase captures data marketing can act on. Select a phase to see what happens in it — and what it records."
+        eyebrow={WORKFLOW_HEADING.eyebrow}
+        title={WORKFLOW_HEADING.title}
+        blurb={WORKFLOW_HEADING.blurb}
       />
 
       {/* Phase cards: snap-scroll row on mobile, 5-across grid on lg */}
@@ -741,7 +970,10 @@ function WorkflowSection() {
           const style = PHASE_STYLE[phase.key];
           const isActive = phase.key === activeKey;
           return (
-            <div key={phase.key} className="relative min-w-[230px] snap-start lg:min-w-0">
+            <div
+              key={phase.key}
+              className="relative min-w-[230px] snap-start lg:min-w-0"
+            >
               <Reveal delay={i * 0.06} className="h-full">
                 <button
                   type="button"
@@ -769,10 +1001,10 @@ function WorkflowSection() {
                     </span>
                   </div>
                   <p className="mt-3 text-sm font-semibold leading-snug text-slate-900">
-                    {phase.name}
+                    {t(phase.name)}
                   </p>
                   <p className="mt-1.5 text-xs leading-relaxed text-slate-500">
-                    {phase.tagline}
+                    {t(phase.tagline)}
                   </p>
                 </button>
               </Reveal>
@@ -803,33 +1035,38 @@ function WorkflowSection() {
           >
             <div className="flex flex-wrap items-center gap-3">
               <PhaseChip phase={active.key} />
-              <h3 className="font-[family-name:var(--font-bricolage)] text-lg font-bold text-slate-900">
-                {active.name}
+              <h3 className={`${HEADING_FONT} text-lg font-bold text-slate-900`}>
+                {t(active.name)}
               </h3>
-              <p className="text-sm text-slate-500">{active.tagline}</p>
+              <p className="text-sm text-slate-500">{t(active.tagline)}</p>
             </div>
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {active.groups.map((group) => (
                 <div
-                  key={group.label}
+                  key={group.label.en}
                   className="rounded-xl border border-slate-200 bg-white p-4"
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                    {group.label}
+                    {t(group.label)}
                   </p>
                   {group.flow ? (
                     <ol className="mt-3 space-y-1.5">
                       {group.items.map((item, idx) => (
-                        <li key={item} className="flex items-center gap-2">
+                        <li
+                          key={typeof item === "string" ? item : item.en}
+                          className="flex items-center gap-2"
+                        >
                           <span
                             className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white ${PHASE_STYLE[active.key].dot}`}
                           >
                             {idx + 1}
                           </span>
-                          <span className="text-sm text-slate-700">{item}</span>
+                          <span className="text-sm text-slate-700">
+                            {t(item)}
+                          </span>
                           {idx < group.items.length - 1 && (
                             <ArrowDown
-                              className="ml-auto h-3 w-3 text-slate-300"
+                              className="ml-auto h-3 w-3 shrink-0 text-slate-300"
                               aria-hidden="true"
                             />
                           )}
@@ -840,10 +1077,10 @@ function WorkflowSection() {
                     <ul className="mt-3 flex flex-wrap gap-1.5">
                       {group.items.map((item) => (
                         <li
-                          key={item}
+                          key={typeof item === "string" ? item : item.en}
                           className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700"
                         >
-                          {item}
+                          {t(item)}
                         </li>
                       ))}
                     </ul>
@@ -858,15 +1095,35 @@ function WorkflowSection() {
   );
 }
 
+const CRM_HEADING = {
+  eyebrow: { en: "CRM data model", th: "โมเดลข้อมูล CRM" },
+  title: {
+    en: "One profile, filled by the whole journey",
+    th: "โปรไฟล์เดียว เติมข้อมูลจากทั้งเส้นทาง",
+  },
+  blurb: {
+    en: "Every phase writes into the same customer record. The color of each field shows which phase captured it.",
+    th: "ทุกเฟสเขียนลงเรคคอร์ดลูกค้าเดียวกัน สีของแต่ละฟิลด์บอกว่าเก็บมาจากเฟสไหน",
+  },
+} as const;
+
+const CRM_TABLE_HEADERS: { key: string; label: LStr }[] = [
+  { key: "field", label: { en: "Field", th: "ฟิลด์" } },
+  { key: "type", label: { en: "Type", th: "ชนิด" } },
+  { key: "sample", label: { en: "Sample", th: "ตัวอย่าง" } },
+  { key: "captured", label: { en: "Captured in", th: "เก็บจากเฟส" } },
+];
+
 function CrmSection() {
+  const t = useT();
   return (
     <section className="border-y border-slate-200 bg-slate-50/50">
       <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <SectionHeading
           id="crm"
-          eyebrow="CRM data model"
-          title="One profile, filled by the whole journey"
-          blurb="Every phase writes into the same customer record. The color of each field shows which phase captured it."
+          eyebrow={CRM_HEADING.eyebrow}
+          title={CRM_HEADING.title}
+          blurb={CRM_HEADING.blurb}
         />
         <Reveal className="mt-12">
           <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -883,18 +1140,15 @@ function CrmSection() {
               <table className="w-full min-w-[540px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
-                    <th scope="col" className="px-5 py-2.5 font-semibold">
-                      Field
-                    </th>
-                    <th scope="col" className="px-4 py-2.5 font-semibold">
-                      Type
-                    </th>
-                    <th scope="col" className="px-4 py-2.5 font-semibold">
-                      Sample
-                    </th>
-                    <th scope="col" className="px-5 py-2.5 font-semibold">
-                      Captured in
-                    </th>
+                    {CRM_TABLE_HEADERS.map((h) => (
+                      <th
+                        key={h.key}
+                        scope="col"
+                        className="px-4 py-2.5 font-semibold first:px-5 last:px-5"
+                      >
+                        {t(h.label)}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
@@ -929,15 +1183,27 @@ function CrmSection() {
   );
 }
 
+const EVENTS_HEADING = {
+  eyebrow: {
+    en: "Event tracking architecture",
+    th: "สถาปัตยกรรมการติดตามอีเวนต์",
+  },
+  title: { en: "13 events, four destinations", th: "13 อีเวนต์ สี่ปลายทาง" },
+  blurb: {
+    en: "Every meaningful customer action fires a tracked event. The same stream powers ads, analytics, CRM, and the marketing dashboard.",
+    th: "ทุกการกระทำสำคัญของลูกค้ายิงอีเวนต์ที่ติดตามได้ สตรีมเดียวกันนี้ขับเคลื่อนทั้งโฆษณา, analytics, CRM และแดชบอร์ดการตลาด",
+  },
+} as const;
+
 function EventsSection() {
   const reduced = useReducedMotion();
   return (
     <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <SectionHeading
         id="events"
-        eyebrow="Event tracking architecture"
-        title="13 events, four destinations"
-        blurb="Every meaningful customer action fires a tracked event. The same stream powers ads, analytics, CRM, and the marketing dashboard."
+        eyebrow={EVENTS_HEADING.eyebrow}
+        title={EVENTS_HEADING.title}
+        blurb={EVENTS_HEADING.blurb}
       />
       <div className="mt-12 grid items-center gap-6 lg:grid-cols-[1.15fr_auto_0.85fr]">
         {/* Event chips grouped by phase */}
@@ -971,9 +1237,7 @@ function EventsSection() {
               key={i}
               initial={reduced ? false : { opacity: 0.25 }}
               animate={
-                reduced
-                  ? undefined
-                  : { opacity: [0.25, 1, 0.25], x: [0, 6, 0] }
+                reduced ? undefined : { opacity: [0.25, 1, 0.25], x: [0, 6, 0] }
               }
               transition={{
                 duration: 1.8,
@@ -990,25 +1254,36 @@ function EventsSection() {
         {/* Destinations */}
         <div className="grid gap-3">
           {DESTINATIONS.map((dest, i) => (
-            <Reveal key={dest.name} delay={i * 0.08}>
-              <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                  <dest.icon className="h-4.5 w-4.5 text-blue-600" aria-hidden="true" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {dest.name}
-                  </p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
-                    {dest.note}
-                  </p>
-                </div>
-              </div>
-            </Reveal>
+            <DestinationCard key={dest.name} dest={dest} index={i} />
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function DestinationCard({
+  dest,
+  index,
+}: {
+  dest: (typeof DESTINATIONS)[number];
+  index: number;
+}) {
+  const t = useT();
+  return (
+    <Reveal delay={index * 0.08}>
+      <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50">
+          <dest.icon className="h-4.5 w-4.5 text-blue-600" aria-hidden="true" />
+        </span>
+        <div>
+          <p className="text-sm font-semibold text-slate-900">{dest.name}</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
+            {t(dest.note)}
+          </p>
+        </div>
+      </div>
+    </Reveal>
   );
 }
 
@@ -1018,17 +1293,18 @@ function WidgetCard({
   children,
   className,
 }: {
-  title: string;
+  title: LStr;
   phase: PhaseKey;
   children: ReactNode;
   className?: string;
 }) {
+  const t = useT();
   return (
     <div
       className={`flex flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.06)] ${className ?? ""}`}
     >
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold text-slate-900">{title}</p>
+        <p className="text-sm font-semibold text-slate-900">{t(title)}</p>
         <PhaseChip phase={phase} />
       </div>
       <div className="mt-3 flex-1">{children}</div>
@@ -1048,14 +1324,17 @@ function StatBlock({
   value,
   sub,
 }: {
-  label: string;
+  label: LStr;
   value: string;
   sub: string;
 }) {
+  const t = useT();
   return (
     <div className="rounded-lg bg-slate-50 p-3">
-      <p className="text-xs font-medium text-slate-500">{label}</p>
-      <p className="mt-1 font-[family-name:var(--font-bricolage)] text-xl font-bold tabular-nums text-slate-900">
+      <p className="text-xs font-medium text-slate-500">{t(label)}</p>
+      <p
+        className={`mt-1 ${HEADING_FONT} text-xl font-bold tabular-nums text-slate-900`}
+      >
         {value}
       </p>
       <p className="mt-0.5 text-[11px] text-emerald-700">{sub}</p>
@@ -1063,21 +1342,74 @@ function StatBlock({
   );
 }
 
+const DASHBOARD_HEADING = {
+  eyebrow: { en: "Marketing dashboard", th: "แดชบอร์ดการตลาด" },
+  title: {
+    en: "What marketing sees every morning",
+    th: "สิ่งที่ทีมการตลาดเห็นทุกเช้า",
+  },
+  blurb: {
+    en: "The closed loop ends in one screen: acquisition, conversion, retention, and operations — each widget tagged with the phase that feeds it.",
+    th: "วงจรปิดจบที่หน้าจอเดียว: หาลูกค้า คอนเวอร์ชัน รักษาลูกค้า และการใช้พื้นที่ — ทุกวิดเจ็ตติดป้ายสีของเฟสที่ป้อนข้อมูลให้",
+  },
+} as const;
+
+const WIDGET_TITLES = {
+  traffic: { en: "Traffic Sources", th: "ช่องทางทราฟฟิก" },
+  campaigns: {
+    en: "Campaign Performance (bookings)",
+    th: "ผลงานแคมเปญ (จำนวนการจอง)",
+  },
+  conversion: { en: "Conversion & Revenue", th: "คอนเวอร์ชัน & รายได้" },
+  retention: { en: "Retention Health", th: "สุขภาพการรักษาลูกค้า" },
+  rooms: { en: "Most Popular Space", th: "พื้นที่ยอดนิยม" },
+  peak: { en: "Peak Booking Hours", th: "ช่วงเวลาจองหนาแน่น" },
+} as const;
+
+const STAT_LABELS = {
+  bookingRate: { en: "Booking Rate", th: "อัตราการจอง" },
+  revenue: { en: "Revenue", th: "รายได้" },
+  roas: { en: "ROAS", th: "ROAS" },
+  repeatRate: { en: "Repeat Rate", th: "อัตราจองซ้ำ" },
+  clv: { en: "CLV", th: "CLV" },
+  nps: { en: "NPS", th: "NPS" },
+} as const;
+
+const NPS_MIX_LABEL: LStr = { en: "NPS response mix", th: "สัดส่วนคำตอบ NPS" };
+
+const AUTOMATION_NOTE = {
+  lead: { en: "Automation firing now:", th: "การตลาดอัตโนมัติที่กำลังทำงาน:" },
+  body: {
+    en: "Exam Season Promotion → Students segment, Corporate Rebooking → lapsed Corporate accounts, Happy Hour → off-peak regulars.",
+    th: "โปรช่วงสอบ → กลุ่มนักศึกษา, แคมเปญจองซ้ำ → ลูกค้าองค์กรที่หายไป, Happy Hour → ลูกค้าประจำช่วงนอกพีค",
+  },
+} as const;
+
+const PEAK_NOTE: LStr = {
+  en: "Demand peaks 17:00–19:00 — Happy Hour promo targets 13:00–16:00.",
+  th: "ช่วงพีคคือ 17:00–19:00 — โปร Happy Hour เจาะช่วง 13:00–16:00",
+};
+
 function DashboardSection() {
+  const t = useT();
   return (
     <section className="border-y border-slate-200 bg-slate-50/50">
       <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <SectionHeading
           id="dashboard"
-          eyebrow="Marketing dashboard"
-          title="What marketing sees every morning"
-          blurb="The closed loop ends in one screen: acquisition, conversion, retention, and operations — each widget tagged with the phase that feeds it."
+          eyebrow={DASHBOARD_HEADING.eyebrow}
+          title={DASHBOARD_HEADING.title}
+          blurb={DASHBOARD_HEADING.blurb}
         />
 
         <div className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-12">
           {/* Acquisition */}
           <Reveal className="xl:col-span-4">
-            <WidgetCard title="Traffic Sources" phase="acquisition" className="h-full">
+            <WidgetCard
+              title={WIDGET_TITLES.traffic}
+              phase="acquisition"
+              className="h-full"
+            >
               <div className="h-52">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -1123,7 +1455,7 @@ function DashboardSection() {
 
           <Reveal delay={0.06} className="xl:col-span-8">
             <WidgetCard
-              title="Campaign Performance (bookings)"
+              title={WIDGET_TITLES.campaigns}
               phase="acquisition"
               className="h-full"
             >
@@ -1135,17 +1467,34 @@ function DashboardSection() {
                     margin={{ left: 8, right: 16, top: 4, bottom: 4 }}
                   >
                     <CartesianGrid horizontal={false} stroke="#f1f5f9" />
-                    <XAxis type="number" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                    <XAxis
+                      type="number"
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
                     <YAxis
                       type="category"
                       dataKey="campaign"
                       width={168}
-                      tick={{ fontSize: 11, fill: "#475569", fontFamily: "var(--font-jetbrains-mono)" }}
+                      tick={{
+                        fontSize: 11,
+                        fill: "#475569",
+                        fontFamily: "var(--font-jetbrains-mono)",
+                      }}
                       axisLine={false}
                       tickLine={false}
                     />
-                    <Tooltip contentStyle={chartTooltipStyle} cursor={{ fill: "#f8fafc" }} />
-                    <Bar dataKey="bookings" fill="#2563eb" radius={[0, 4, 4, 0]} barSize={18} />
+                    <Tooltip
+                      contentStyle={chartTooltipStyle}
+                      cursor={{ fill: "#f8fafc" }}
+                    />
+                    <Bar
+                      dataKey="bookings"
+                      fill="#2563eb"
+                      radius={[0, 4, 4, 0]}
+                      barSize={18}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -1154,23 +1503,51 @@ function DashboardSection() {
 
           {/* Conversion */}
           <Reveal className="md:col-span-2 xl:col-span-7">
-            <WidgetCard title="Conversion & Revenue" phase="purchase" className="h-full">
+            <WidgetCard
+              title={WIDGET_TITLES.conversion}
+              phase="purchase"
+              className="h-full"
+            >
               <div className="grid grid-cols-3 gap-3">
-                <StatBlock label="Booking Rate" value="2.7%" sub="+0.3pt" />
-                <StatBlock label="Revenue" value="฿642K" sub="+15.2%" />
-                <StatBlock label="ROAS" value="4.8x" sub="+0.6x" />
+                <StatBlock
+                  label={STAT_LABELS.bookingRate}
+                  value="2.7%"
+                  sub="+0.3pt"
+                />
+                <StatBlock
+                  label={STAT_LABELS.revenue}
+                  value="฿642K"
+                  sub="+15.2%"
+                />
+                <StatBlock label={STAT_LABELS.roas} value="4.8x" sub="+0.6x" />
               </div>
               <div className="mt-4 h-40">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={REVENUE_TREND} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
+                  <AreaChart
+                    data={REVENUE_TREND}
+                    margin={{ left: 0, right: 8, top: 8, bottom: 0 }}
+                  >
                     <defs>
                       <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#2563eb" stopOpacity={0.22} />
-                        <stop offset="100%" stopColor="#2563eb" stopOpacity={0} />
+                        <stop
+                          offset="0%"
+                          stopColor="#2563eb"
+                          stopOpacity={0.22}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#2563eb"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                     </defs>
                     <CartesianGrid vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
                     <YAxis
                       tick={{ fontSize: 11, fill: "#94a3b8" }}
                       axisLine={false}
@@ -1197,17 +1574,29 @@ function DashboardSection() {
 
           {/* Retention */}
           <Reveal delay={0.06} className="xl:col-span-5">
-            <WidgetCard title="Retention Health" phase="retention" className="h-full">
+            <WidgetCard
+              title={WIDGET_TITLES.retention}
+              phase="retention"
+              className="h-full"
+            >
               <div className="grid grid-cols-3 gap-3">
-                <StatBlock label="Repeat Rate" value="38%" sub="+5pt" />
-                <StatBlock label="CLV" value="฿4,120" sub="+9.4%" />
-                <StatBlock label="NPS" value="42" sub="+6" />
+                <StatBlock
+                  label={STAT_LABELS.repeatRate}
+                  value="38%"
+                  sub="+5pt"
+                />
+                <StatBlock label={STAT_LABELS.clv} value="฿4,120" sub="+9.4%" />
+                <StatBlock label={STAT_LABELS.nps} value="42" sub="+6" />
               </div>
               <div className="mt-4">
                 <p className="text-xs font-medium text-slate-500">
-                  NPS response mix
+                  {t(NPS_MIX_LABEL)}
                 </p>
-                <div className="mt-2 flex h-3 w-full overflow-hidden rounded-full" role="img" aria-label="NPS mix: 56% promoters, 30% passives, 14% detractors">
+                <div
+                  className="mt-2 flex h-3 w-full overflow-hidden rounded-full"
+                  role="img"
+                  aria-label="NPS mix: 56% promoters, 30% passives, 14% detractors"
+                >
                   <div className="bg-emerald-500" style={{ width: "56%" }} />
                   <div className="bg-slate-300" style={{ width: "30%" }} />
                   <div className="bg-rose-400" style={{ width: "14%" }} />
@@ -1219,10 +1608,9 @@ function DashboardSection() {
                 </div>
                 <p className="mt-4 rounded-lg border border-rose-100 bg-rose-50/60 p-3 text-xs leading-relaxed text-slate-600">
                   <span className="font-semibold text-rose-700">
-                    Automation firing now:
+                    {t(AUTOMATION_NOTE.lead)}
                   </span>{" "}
-                  Exam Season Promotion → Students segment, Corporate Rebooking →
-                  lapsed Corporate accounts, Happy Hour → off-peak regulars.
+                  {t(AUTOMATION_NOTE.body)}
                 </p>
               </div>
             </WidgetCard>
@@ -1230,15 +1618,40 @@ function DashboardSection() {
 
           {/* Operations */}
           <Reveal className="xl:col-span-7">
-            <WidgetCard title="Most Popular Room" phase="service" className="h-full">
+            <WidgetCard
+              title={WIDGET_TITLES.rooms}
+              phase="service"
+              className="h-full"
+            >
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={POPULAR_ROOMS} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
+                  <BarChart
+                    data={POPULAR_ROOMS}
+                    margin={{ left: 0, right: 8, top: 8, bottom: 0 }}
+                  >
                     <CartesianGrid vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="room" tick={{ fontSize: 11, fill: "#475569" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} width={36} />
-                    <Tooltip contentStyle={chartTooltipStyle} cursor={{ fill: "#f8fafc" }} />
-                    <Bar dataKey="bookings" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={28} />
+                    <XAxis
+                      dataKey="room"
+                      tick={{ fontSize: 11, fill: "#475569" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={36}
+                    />
+                    <Tooltip
+                      contentStyle={chartTooltipStyle}
+                      cursor={{ fill: "#f8fafc" }}
+                    />
+                    <Bar
+                      dataKey="bookings"
+                      fill="#8b5cf6"
+                      radius={[4, 4, 0, 0]}
+                      barSize={28}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -1246,10 +1659,21 @@ function DashboardSection() {
           </Reveal>
 
           <Reveal delay={0.06} className="xl:col-span-5">
-            <WidgetCard title="Peak Booking Hours" phase="service" className="h-full">
-              <div className="flex h-40 items-end gap-1" role="img" aria-label="Peak booking hours: demand builds through the afternoon and peaks at 18:00">
+            <WidgetCard
+              title={WIDGET_TITLES.peak}
+              phase="service"
+              className="h-full"
+            >
+              <div
+                className="flex h-40 items-end gap-1"
+                role="img"
+                aria-label="Peak booking hours: demand builds through the afternoon and peaks at 18:00"
+              >
                 {PEAK_HOURS.map((slot) => (
-                  <div key={slot.hour} className="flex flex-1 flex-col items-center gap-1">
+                  <div
+                    key={slot.hour}
+                    className="flex flex-1 flex-col items-center gap-1"
+                  >
                     <div
                       className="w-full rounded-sm bg-blue-600"
                       style={{
@@ -1271,8 +1695,11 @@ function DashboardSection() {
                 ))}
               </div>
               <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-500">
-                <Clock className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
-                Demand peaks 17:00–19:00 — Happy Hour promo targets 13:00–16:00.
+                <Clock
+                  className="h-3.5 w-3.5 shrink-0 text-blue-600"
+                  aria-hidden="true"
+                />
+                {t(PEAK_NOTE)}
               </p>
             </WidgetCard>
           </Reveal>
@@ -1282,7 +1709,27 @@ function DashboardSection() {
   );
 }
 
+const GOALS_FOOTER = {
+  title: {
+    en: "Key goals for marketing users",
+    th: "เป้าหมายหลักของทีมการตลาด",
+  },
+  blurb: {
+    en: "The loop exists to move four numbers. Everything on this page feeds one of them.",
+    th: "วงจรนี้มีไว้ขยับตัวเลข 4 ตัว ทุกอย่างในหน้านี้ป้อนเข้าเป้าหมายใดเป้าหมายหนึ่งเสมอ",
+  },
+  credit: {
+    en: "Smart Space — Marketing OS · demo visualization with mock data",
+    th: "Smart Space — Marketing OS · หน้าสาธิตด้วยข้อมูลจำลอง",
+  },
+  loop: {
+    en: "back to Acquisition",
+    th: "วนกลับไปหาลูกค้า",
+  },
+} as const;
+
 function GoalsFooter() {
+  const t = useT();
   return (
     <footer className="bg-white">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -1290,22 +1737,24 @@ function GoalsFooter() {
           <div className="rounded-2xl bg-blue-600 px-6 py-10 sm:px-10">
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="max-w-md">
-                <h2 className="font-[family-name:var(--font-bricolage)] text-2xl font-bold text-white">
-                  Key goals for marketing users
+                <h2 className={`${HEADING_FONT} text-2xl font-bold text-white`}>
+                  {t(GOALS_FOOTER.title)}
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-blue-100">
-                  The loop exists to move four numbers. Everything on this page
-                  feeds one of them.
+                  {t(GOALS_FOOTER.blurb)}
                 </p>
               </div>
               <ul className="grid gap-2.5 sm:grid-cols-2">
                 {GOALS.map((goal) => (
-                  <li key={goal} className="flex items-start gap-2 text-sm text-white">
+                  <li
+                    key={goal.en}
+                    className="flex items-start gap-2 text-sm text-white"
+                  >
                     <CheckCircle2
                       className="mt-0.5 h-4 w-4 shrink-0 text-blue-200"
                       aria-hidden="true"
                     />
-                    {goal}
+                    {t(goal)}
                   </li>
                 ))}
               </ul>
@@ -1313,13 +1762,11 @@ function GoalsFooter() {
           </div>
         </Reveal>
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
-          <p>
-            Smart Space — Marketing OS · demo visualization with mock data
-          </p>
+          <p>{t(GOALS_FOOTER.credit)}</p>
           <p className="flex items-center gap-1.5">
-            <BadgePercent className="h-3.5 w-3.5" aria-hidden="true" />
+            <BadgePercent className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             Acquisition → Conversion → Purchase → Service → Retention →{" "}
-            <span className="text-rose-500">back to Acquisition</span>
+            <span className="text-rose-500">{t(GOALS_FOOTER.loop)}</span>
           </p>
         </div>
       </div>
@@ -1331,16 +1778,32 @@ function GoalsFooter() {
    Page
    ============================================================ */
 
-export default function MartechWorkflow() {
+export default function MartechWorkflow({
+  fontClass = "",
+}: {
+  fontClass?: string;
+}) {
+  const lang = useSyncExternalStore(
+    subscribeLang,
+    getLangSnapshot,
+    (): Lang => "en",
+  );
+  const handleLangChange = useCallback((l: Lang) => setStoredLang(l), []);
+
   return (
-    <div className="min-h-screen bg-white font-[family-name:var(--font-inter)] text-slate-900 antialiased">
-      <TopNav />
-      <Hero />
-      <WorkflowSection />
-      <CrmSection />
-      <EventsSection />
-      <DashboardSection />
-      <GoalsFooter />
-    </div>
+    <LangContext.Provider value={lang}>
+      <div
+        lang={lang}
+        className={`${fontClass} min-h-screen bg-white text-slate-900 antialiased [font-family:var(--font-inter),var(--font-anuphan),sans-serif]`}
+      >
+        <TopNav lang={lang} onLangChange={handleLangChange} />
+        <Hero />
+        <WorkflowSection />
+        <CrmSection />
+        <EventsSection />
+        <DashboardSection />
+        <GoalsFooter />
+      </div>
+    </LangContext.Provider>
   );
 }

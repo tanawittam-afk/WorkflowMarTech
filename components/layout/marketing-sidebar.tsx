@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BarChart3, CalendarDays, LayoutDashboard, LogOut, Users } from "lucide-react";
+import {
+  BarChart3,
+  CalendarDays,
+  LayoutDashboard,
+  LogOut,
+  Users,
+  Workflow,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useBookingStore } from "@/lib/store/booking-store";
@@ -12,6 +19,7 @@ const NAV_ITEMS = [
   { href: "/analytics", label: "Analytics & Statistics", icon: BarChart3 },
   { href: "/customers", label: "Customers", icon: Users },
   { href: "/bookings", label: "Bookings", icon: CalendarDays },
+  { href: "/martech", label: "Marketing Workflow", icon: Workflow },
 ];
 
 export function MarketingSidebar() {
