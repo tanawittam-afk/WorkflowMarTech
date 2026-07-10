@@ -6,7 +6,17 @@ _Last updated: 2026-07-10_
 
 **Smart Space** — a co-working / creator-hub booking demo (Next.js 16 App Router, React 19, Tailwind v4, shadcn-style UI, zustand + localStorage, 100% mock data, no backend). Three route groups: `(auth)` simulated login/register, `(customer)` book → QR check-in → notifications/loyalty, `(marketing)` dashboard + analytics (hand-written k-means, churn, sentiment, topics). The backend-swap seam is `lib/data/repo.ts` (`BookingRepo` interface — a future `supabaseRepo` drops in with zero component changes).
 
-## Latest phase (2026-07-10): `/martech` marketing workflow page — DONE ✅
+## Latest phase (2026-07-10 later): TH/EN + site integration — DONE ✅
+
+Commit `d8e4fa6`, deployed to prod, smoke 3/3 + content checks.
+
+- **Bilingual `/martech`:** every display string is `LStr { en, th }` resolved via `LangContext`; EN default, persisted in `localStorage("martech-lang")` through `useSyncExternalStore` (ESLint's react-hooks/set-state-in-effect forbids the setState-in-effect pattern — keep using the external-store approach). Technical vocabulary (event names, CRM fields, brands, ROAS/UTM/NPS/CLV) stays English in both languages. Toggle = EN | ไทย pill in TopNav, visible on mobile.
+- **Thai font:** `Anuphan` loaded route-scoped in `app/martech/page.tsx` (`--font-anuphan`); Bricolage/Inter have no Thai glyphs, so font stacks are `var(--font-bricolage),var(--font-anuphan)` (headings) and `var(--font-inter),var(--font-anuphan)` (body).
+- **Co-working reframe (workflow page only):** hero copy = co-working space rental business; rooms = Meeting A/B, Hot Desk, Office 1/2, Event Space; campaign `monthly-desk-google`; CRM sample `Meeting Room B`. Main app zones untouched.
+- **Integration:** marketing sidebar has "Marketing Workflow" → `/martech` (`components/layout/marketing-sidebar.tsx`); landing has a "Marketing OS" glass-card section → `/martech` (`app/page.tsx`). Verified via CDP: login as marketing → sidebar item → navigates to /martech; landing link present.
+- Verified TH mode end-to-end via CDP (toggle → Thai content, EN technical terms, reload persistence, 390px no overflow, full-page screenshots reviewed).
+
+## Earlier phase (2026-07-10): `/martech` marketing workflow page — DONE ✅
 
 Built from the user's full brief (see `BriefMartech/WorkFlowLastest.png` — business reference only; layout fully redesigned for Marketing Users).
 
@@ -33,7 +43,6 @@ Built from the user's full brief (see `BriefMartech/WorkFlowLastest.png` — bus
 
 ## State / not done
 - Known pre-existing loose end: `submitCsat` exists in the store but no UI calls it (customers can't submit a new CSAT rating).
-- No cross-link from the main landing page to `/martech` (page links out to `/` and `/dashboard`, but nothing links in). Add one if the user wants it discoverable.
 
 ## How to run
 
