@@ -6,7 +6,7 @@ _Last updated: 2026-07-15_
 
 **Smart Space** — a co-working / creator-hub booking demo (Next.js 16 App Router, React 19, Tailwind v4, shadcn-style UI, zustand + localStorage, 100% mock data, no backend). Three route groups: `(auth)` simulated login/register, `(customer)` book → QR check-in → notifications/loyalty, `(marketing)` dashboard + analytics (hand-written k-means, churn, sentiment, topics). The backend-swap seam is `lib/data/repo.ts` (`BookingRepo` interface — a future `supabaseRepo` drops in with zero component changes). Plus two standalone marketing showcase routes: `/martech` (workflow story page, bilingual) and `/marketing-user` (interactive CDP dashboard prototype, Thai-only).
 
-## Latest phase (2026-07-15): `/marketing-user` — CDP dashboard "Marketing User" — BUILT ✅ (deploy pending)
+## Latest phase (2026-07-15): `/marketing-user` — CDP dashboard "Marketing User" — SHIPPED ✅
 
 Built from the new brief in `BriefMartech/MarketTech.md` + `BriefMartech/Project (Proposal).md`. Decision made: **new self-contained route inside this project** (not a rebuild, not a retrofit of the old `(marketing)` dashboard — its data model has no beverages/LINE UID/20-room grid).
 
@@ -24,7 +24,7 @@ Built from the new brief in `BriefMartech/MarketTech.md` + `BriefMartech/Project
 - CDP smoke script (scratchpad `cdp/smoke.mjs` pattern — ws + raw CDP): **37/37 checks pass** — content, heatmap 20 rows, dynamic-pricing banner, coupon toast + row state, bundle activation, full simulator journey incl. bundle pop-up + coupon conversion + churn-row clearing, no horizontal overflow at 1440 and 390 (via `Emulation.setDeviceMetricsOverride` — same Windows headless gotcha as before), /martech link regression.
 - Gotcha fixed during build: `Card` needs `min-w-0` so the heatmap's `min-w-[720px]` scrolls inside its `overflow-x-auto` instead of stretching the page on mobile. KPI labels are CSS-uppercased — text assertions must be case-insensitive.
 
-**NOT DONE: production deploy.** Session permission blocked `vercel --prod`. To ship: `cd BookingWeb && vercel --prod` then smoke `/marketing-user` on https://bookingweb-smart-space.vercel.app.
+**Deployed 2026-07-15** (user ran `vercel --prod`, deployment `dpl_7jGCm2xE1mbEpv4A3vQC8WBXqdbA` aliased to https://bookingweb-smart-space.vercel.app). Prod smoke: 5/5 routes 200 (`/marketing-user`, `/martech`, `/`, `/dashboard`, `/book`) + `/marketing-user` content checks 5/5.
 
 ## Latest phase (2026-07-10 later): TH/EN + site integration — DONE ✅
 
