@@ -1,10 +1,30 @@
 # BookingWeb — HANDOFF
 
-_Last updated: 2026-07-10_
+_Last updated: 2026-07-15_
 
 ## What this project is
 
-**Smart Space** — a co-working / creator-hub booking demo (Next.js 16 App Router, React 19, Tailwind v4, shadcn-style UI, zustand + localStorage, 100% mock data, no backend). Three route groups: `(auth)` simulated login/register, `(customer)` book → QR check-in → notifications/loyalty, `(marketing)` dashboard + analytics (hand-written k-means, churn, sentiment, topics). The backend-swap seam is `lib/data/repo.ts` (`BookingRepo` interface — a future `supabaseRepo` drops in with zero component changes).
+**Smart Space** — a co-working / creator-hub booking demo (Next.js 16 App Router, React 19, Tailwind v4, shadcn-style UI, zustand + localStorage, 100% mock data, no backend). Three route groups: `(auth)` simulated login/register, `(customer)` book → QR check-in → notifications/loyalty, `(marketing)` dashboard + analytics (hand-written k-means, churn, sentiment, topics). The backend-swap seam is `lib/data/repo.ts` (`BookingRepo` interface — a future `supabaseRepo` drops in with zero component changes). Plus two standalone marketing showcase routes: `/martech` (workflow story page, bilingual) and `/marketing-user` (interactive CDP dashboard prototype, Thai-only).
+
+## Latest phase (2026-07-15): `/marketing-user` — CDP dashboard "Marketing User" — BUILT ✅ (deploy pending)
+
+Built from the new brief in `BriefMartech/MarketTech.md` + `BriefMartech/Project (Proposal).md`. Decision made: **new self-contained route inside this project** (not a rebuild, not a retrofit of the old `(marketing)` dashboard — its data model has no beverages/LINE UID/20-room grid).
+
+**Route:** `/marketing-user` — Smart Space CDP prototype. Thai-only UI (technical terms stay English); light enterprise white/blue-600 surface matching `/martech`.
+
+**Files (follows the /martech single-file pattern):**
+- `app/marketing-user/page.tsx` — server wrapper (metadata + route-scoped Anuphan font)
+- `app/marketing-user/marketing-user.tsx` — entire app in one `"use client"` file: seeded mock data engine (`dim_customers` 15 profiles keyed by LINE UID, 20 rooms S/M/L @300/500/1000, `fact_bookings` ~90 days, `fact_billings` QR beverage orders) → simulated analytics (K-Means personas + churn risk, Apriori bundle rules, time-series demand curves) → `useReducer` shared state.
+- `app/martech/martech-workflow.tsx` — only change: TopNav link → `/marketing-user`.
+
+**What's on the page:** 2 tabs (แดชบอร์ดนักการตลาด / จำลองการจองของลูกค้า) · 3 SMART goal progress bars (room revenue +15%, attach rate →40%, AOV +15% — baselines fixed at first render so bars move live) · 8 KPI cards · 20×24 occupancy heatmap + Dynamic Pricing toggle (off-peak 21:00–09:00 −18%) · pie/bar service+beverage charts (recharts) · VIP churn table (risk ≥80%) with per-row "Sync & Send คูปองเข้า LINE OA" → sonner toast · AI Smart Bundling cards (activate → simulator shows bundle pop-up) · Activity Log. Simulator walks the full journey (pick customer → book+pay round 1, coupon/dynamic-pricing discounts apply → in-room QR ordering with auto-trigger banner → checkout round 2 + CSAT) and every commit updates the dashboard. Closed loop verified: send coupon → book as that customer in simulator → churn row clears + LINE OA conversion ticks up.
+
+**Verification done (2026-07-15):**
+- `npm run lint` clean; `npm run build` passes (16 routes incl. `/marketing-user` static)
+- CDP smoke script (scratchpad `cdp/smoke.mjs` pattern — ws + raw CDP): **37/37 checks pass** — content, heatmap 20 rows, dynamic-pricing banner, coupon toast + row state, bundle activation, full simulator journey incl. bundle pop-up + coupon conversion + churn-row clearing, no horizontal overflow at 1440 and 390 (via `Emulation.setDeviceMetricsOverride` — same Windows headless gotcha as before), /martech link regression.
+- Gotcha fixed during build: `Card` needs `min-w-0` so the heatmap's `min-w-[720px]` scrolls inside its `overflow-x-auto` instead of stretching the page on mobile. KPI labels are CSS-uppercased — text assertions must be case-insensitive.
+
+**NOT DONE: production deploy.** Session permission blocked `vercel --prod`. To ship: `cd BookingWeb && vercel --prod` then smoke `/marketing-user` on https://bookingweb-smart-space.vercel.app.
 
 ## Latest phase (2026-07-10 later): TH/EN + site integration — DONE ✅
 

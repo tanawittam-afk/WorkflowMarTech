@@ -772,6 +772,13 @@ function TopNav({
               </button>
             ))}
           </nav>
+          <Link
+            href="/marketing-user"
+            className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+          >
+            {t({ en: "Marketing User", th: "แดชบอร์ด Marketing User" })}
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
           <LangToggle lang={lang} onChange={onLangChange} />
         </div>
       </div>
