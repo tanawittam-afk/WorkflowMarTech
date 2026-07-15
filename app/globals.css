@@ -164,8 +164,8 @@
   --color-zone-large-soft: var(--zone-large-soft);
   --color-glass: var(--glass-bg);
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-bricolage), var(--font-inter), sans-serif;
+  --font-sans: var(--font-inter), var(--font-anuphan), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-bricolage), var(--font-anuphan), var(--font-inter), sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 
   --radius-sm: 8px;
@@ -183,7 +183,7 @@
 body {
   background: var(--bg-page);
   color: var(--ink-primary);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-inter), var(--font-anuphan), ui-sans-serif, system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.6;
 }

@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-const cardVariants = cva("rounded-[var(--radius-lg)] py-7 flex flex-col gap-7", {
+const cardVariants = cva("min-w-0 rounded-[var(--radius-lg)] py-7 flex flex-col gap-7", {
   variants: {
     variant: {
       default: "card",

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Inter, JetBrains_Mono } from "next/font/google";
+import { Anuphan, Bricolage_Grotesque, Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -7,6 +7,15 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+// Thai-capable fallback — Inter has no Thai glyphs, so Thai text (e.g. the
+// beverage menu names) falls through to Anuphan wherever it appears.
+const anuphan = Anuphan({
+  subsets: ["thai", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-anuphan",
   display: "swap",
 });
 
@@ -30,7 +39,7 @@ export const metadata: Metadata = {
     template: "%s · Smart Space",
   },
   description:
-    "Book studios, meeting rooms, and hot desks at Smart Space — and see the marketing analytics that power it.",
+    "Book Study Pods, Smart Meeting rooms, and Conference Suites at Smart Space — and see the marketing analytics that power it.",
 };
 
 // Dark "glass" is the flagship theme (the default token set in globals.css) —
@@ -52,7 +61,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${bricolage.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${anuphan.variable} ${bricolage.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

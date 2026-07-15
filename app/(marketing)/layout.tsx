@@ -6,7 +6,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
     <RoleGuard requiredRole="marketing">
       <div className="flex min-h-screen">
         <MarketingSidebar />
-        <div className="flex flex-1 flex-col">{children}</div>
+        <div className="flex min-w-0 flex-1 flex-col">{children}</div>
       </div>
     </RoleGuard>
   );

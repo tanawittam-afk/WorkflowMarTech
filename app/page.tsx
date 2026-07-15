@@ -1,24 +1,24 @@
 import Link from "next/link";
-import { Mic2, Users2, Coffee, ArrowRight } from "lucide-react";
+import { ArrowRight, BookOpen, Mic2, MonitorPlay } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 const ZONES = [
   {
+    icon: BookOpen,
+    name: "Study Pod — Small Room",
+    description: "Cozy 5-seat pods with a work desk, chairs, and high-speed WiFi.",
+  },
+  {
+    icon: MonitorPlay,
+    name: "Smart Meeting — Medium Room",
+    description: "10-seat meeting rooms with a writable Smart TV for workshops.",
+  },
+  {
     icon: Mic2,
-    name: "Live & Podcast Studio",
-    description: "Soundproof rooms with lights, cameras, and streaming mics.",
-  },
-  {
-    icon: Users2,
-    name: "Private Meeting Rooms & Hot Desks",
-    description: "Flexible co-working areas and glass-walled meeting spaces.",
-  },
-  {
-    icon: Coffee,
-    name: "Creator Cafe",
-    description: "An in-house espresso bar with coffee, snacks, and energy drinks.",
+    name: "Conference Suite — Large Room",
+    description: "15-20 seat suites with a Smart TV, conference mics, and speakers.",
   },
 ];
 

@@ -58,7 +58,8 @@ export function CustomerTable({
         (c) =>
           c.name.toLowerCase().includes(q) ||
           c.email.toLowerCase().includes(q) ||
-          c.customerId.toLowerCase().includes(q)
+          c.customerId.toLowerCase().includes(q) ||
+          c.lineUid.toLowerCase().includes(q)
       )
       .sort((a, b) => {
         const dir = sortAsc ? 1 : -1;
@@ -93,6 +94,7 @@ export function CustomerTable({
         <TableHeader>
           <TableRow>
             <SortableHead label="ID" sortKeyValue="customerId" onSort={toggleSort} />
+            <TableHead>LINE UID</TableHead>
             <SortableHead label="Name" sortKeyValue="name" onSort={toggleSort} />
             <TableHead>Gender</TableHead>
             <SortableHead label="Age" sortKeyValue="age" onSort={toggleSort} />
@@ -110,6 +112,7 @@ export function CustomerTable({
             return (
               <TableRow key={c.customerId}>
                 <TableCell className="font-mono">{c.customerId}</TableCell>
+                <TableCell className="font-mono text-ink3">{c.lineUid}</TableCell>
                 <TableCell>{c.name}</TableCell>
                 <TableCell>{c.gender}</TableCell>
                 <TableCell>{c.age}</TableCell>

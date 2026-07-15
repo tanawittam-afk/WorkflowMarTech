@@ -8,7 +8,7 @@ export function LoyaltyStampCard({ collected = 0, total = 8 }: { collected?: num
     <Card>
       <CardContent className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-heading text-sm font-semibold text-ink">Creator Cafe loyalty card</h3>
+          <h3 className="font-heading text-sm font-semibold text-ink">Drinks loyalty card</h3>
           <span className="font-mono text-xs text-ink3">
             {collected}/{total}
           </span>
