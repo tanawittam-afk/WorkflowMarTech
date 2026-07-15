@@ -6,9 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { Booking, Zone } from "@/lib/data/types";
 
 const ZONE_COLORS: Record<string, string> = {
-  "zone-1-studio": "var(--zone-studio)",
-  "zone-2-coworking": "var(--zone-coworking)",
-  "zone-3-cafe": "var(--zone-cafe)",
+  "zone-small": "var(--zone-small)",
+  "zone-medium": "var(--zone-medium)",
+  "zone-large": "var(--zone-large)",
 };
 
 export function ZonePieChart({ bookings, zones }: { bookings: Booking[]; zones: Zone[] }) {

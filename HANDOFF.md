@@ -1,6 +1,36 @@
 # BookingWeb — HANDOFF
 
-_Last updated: 2026-07-15_
+_Last updated: 2026-07-15 (evening — PAUSED mid-retrofit, see current phase below)_
+
+## ⏸️ CURRENT PHASE (2026-07-15, IN PROGRESS): Retrofit main app per new BriefMarTech — paused mid-Phase 3
+
+**Approved plan lives at `C:\Users\User\.claude\plans\partitioned-swinging-teapot.md`** — read it first. Goal: merge the new brief's CDP features into the ORIGINAL dark-glass app (real zustand data), keeping `/marketing-user` and `/martech` untouched.
+
+**User decisions (locked — do not re-ask):** (1) rooms rebuilt per brief: 20 rooms, 3 sizes — Small ฿300/hr cap 5 (desk+WiFi), Medium ฿500/hr cap 10 (+writable Smart TV), Large ฿1000/hr cap 15-20 (+mics & speakers); (2) full customer in-room QR beverage flow; (3) CDP widgets melt into the existing `(marketing)/dashboard`; (4) keep `/marketing-user` as-is; (5) UI English, beverage menu names Thai (Anuphan fallback font still TODO).
+
+### Done so far (lint clean + `npm run build` passes at this commit)
+
+- **Phase 1 ✅ Data model + store:**
+  - `lib/data/types.ts` — `ZoneId` = `zone-small|zone-medium|zone-large`; `Customer.lineUid`; new `Beverage`, `OrderLine`, `BeverageOrder`, `BundleRule`
+  - `lib/data/mock-data.ts` — rewritten: 3 size-zones + 20 rooms (`room-pod-1..10`, `room-meeting-a..f`, `room-suite-1..4`), `BEVERAGES` (8, Thai names), `BUNDLE_RULES` (3), seeded generator (mulberry32) for ~80 bookings + `BEVERAGE_ORDERS` (attach ~24-38% by persona), churn seeds C005/C008/C013/C017 (recency>30 → churn.ts scores High), `BASELINES` (revenue30/attach 22%/aov) for goal bars, `TODAY_ISO` still 2026-07-06
+  - `lib/store/booking-store.ts` — new state `orders/dynamicPricing/activeBundles/winBackSent` + actions `addOrder/toggleDynamicPricing/toggleBundle/sendWinBackCoupon` (win-back pushes a real `broadcast-coupon` notification, id contains `-WB-`); registerCustomer mints lineUid; **persist `version: 2` + migrate discards pre-v2 snapshots**; mockRepo + `lib/data/repo.ts` extended (`listOrders/addOrder/sendWinBackCoupon`)
+  - `lib/booking-helpers.ts` — `OFF_PEAK_HOURS` = {9,10,11,21} (bookable range is 9-21), `OFF_PEAK_DISCOUNT` 0.18, `rateForHour`, `priceForSlot`
+  - Zone rename sweep done: `globals.css` tokens (`--zone-small/medium/large`, colors unchanged pink/indigo/amber), `badge.tsx` variants, `zone-availability-grid.tsx` (icons BookOpen/MonitorPlay/Mic2), `zone-pie-chart.tsx`, `loyalty-stamp-card.tsx`, cluster chart files
+- **Phase 2 ✅ Customer flows:**
+  - `room-slot-picker.tsx` — `priceForSlot` + "Off-Peak −18%" in hour dropdown + struck-through full price
+  - `book/confirm/confirm-form.tsx` — rewritten: auto-applies win-back coupon (−15%, marks `clickCoupon` → existing check-in attribution), Smart-Bundle Dialog when an active rule matches zone+hour (accept → `addOrder` pre-order at −15%)
+  - NEW `components/qr/in-room-order-panel.tsx` (menu + qty steppers + accumulated "Teenoi" bill + 2h-no-order auto-trigger banner) and `components/qr/checkout-summary.tsx` (round1+round2 bill + **CSAT stars → `submitCsat`**, closing the old gap); wired into `qr/[bookingId]/page.tsx` (checked-in → order panel; completed → summary)
+  - `account/page.tsx` — shows LINE UID instead of internal customerId
+
+### NOT done yet
+
+- **Phase 3 (was just starting):** rebuild `(marketing)/dashboard/page.tsx` per brief blueprint — goal-progress row (use `BASELINES`), 8 KPI `MetricCard`s (add Occupancy / Combined AOV / Top Services / LINE OA Conversion), NEW components `components/dashboard/{goal-progress-row,occupancy-heatmap,beverage-bar-chart,churn-winback-table,bundling-panel}.tsx` (port heatmap from `app/marketing-user/marketing-user.tsx`, dark palette; churn table = `computeChurnRisks` High rows + `sendWinBackCoupon` button + sonner toast; keep `ConversionLineChart`+`SentimentTopicSummary`, drop `OccupancyBarChart`). Dashboard page + `metric-card.tsx` already read, unmodified.
+- **Phase 4 remainder:** Anuphan fallback in `app/layout.tsx` (Thai menu names currently render with system fallback font!), LINE UID column in `(marketing)/customers` table, check `lib/analytics/topics.ts` synonym map still matches new review texts (reviews were rewritten: wifi/smart tv/mic/QR-order/boba topics), general grep for stale copy mentioning studio/cafe.
+- **Phase 5:** extended CDP smoke (scratchpad `cdp/smoke.mjs` from earlier this session has the ws+CDP pattern — but scratchpad is session-scoped, may be gone; pattern documented in git history of this HANDOFF), 390px mobile check, HANDOFF final update, commit, **deploy = user runs `vercel --prod`** (agent is permission-blocked from deploying).
+
+### Gotchas hit this session
+- Google-Fonts fetch during `next build` fails transiently (network) → build errors mentioning `font/google/*.woff2` module-not-found; just retry.
+- localStorage from before this retrofit holds old zone ids → handled by persist v2 migrate (discards). If weird data appears, clear key `bookingweb-session`.
 
 ## What this project is
 

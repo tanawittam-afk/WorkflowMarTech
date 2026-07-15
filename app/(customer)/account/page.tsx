@@ -44,8 +44,8 @@ export default function AccountPage() {
         </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-            <dt className="text-ink3">Customer ID</dt>
-            <dd className="font-mono text-ink">{customer.customerId}</dd>
+            <dt className="text-ink3">LINE UID</dt>
+            <dd className="font-mono text-ink">{customer.lineUid}</dd>
             <dt className="text-ink3">Name</dt>
             <dd className="text-ink">{customer.name}</dd>
             <dt className="text-ink3">Occupation</dt>

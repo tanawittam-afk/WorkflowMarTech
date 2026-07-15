@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { ClusterSummary } from "@/lib/analytics/kmeans";
 
-const CLUSTER_COLORS = ["var(--accent)", "var(--accent-2)", "var(--zone-cafe)"];
+const CLUSTER_COLORS = ["var(--accent)", "var(--accent-2)", "var(--zone-large)"];
 
 export function ClusterInterpretationCard({ summaries }: { summaries: ClusterSummary[] }) {
   return (

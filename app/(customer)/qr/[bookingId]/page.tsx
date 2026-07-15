@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { QrCodeDisplay } from "@/components/qr/qr-code-display";
 import { SimulateScanButton } from "@/components/qr/simulate-scan-button";
+import { InRoomOrderPanel } from "@/components/qr/in-room-order-panel";
+import { CheckoutSummary } from "@/components/qr/checkout-summary";
 import { useBookingStore } from "@/lib/store/booking-store";
 import { formatHour } from "@/lib/booking-helpers";
 
@@ -69,6 +71,9 @@ export default function QrPage({ params }: { params: Promise<{ bookingId: string
           <SimulateScanButton booking={booking} />
         </CardContent>
       </Card>
+
+      {booking.status === "checked-in" && <InRoomOrderPanel booking={booking} />}
+      {booking.status === "completed" && <CheckoutSummary booking={booking} />}
     </div>
   );
 }

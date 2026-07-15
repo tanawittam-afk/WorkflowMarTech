@@ -5,11 +5,13 @@
 // needs zero changes.
 
 import type {
+  BeverageOrder,
   Booking,
   Customer,
   LineNotification,
   NewBookingInput,
   NewCustomerInput,
+  OrderLine,
   Review,
   Room,
   Zone,
@@ -29,4 +31,7 @@ export interface BookingRepo {
   submitCsat(bookingId: string, rating: 1 | 2 | 3 | 4 | 5): Promise<void>;
   registerCustomer(input: NewCustomerInput): Promise<Customer>;
   clickCoupon(notificationId: string): Promise<void>;
+  listOrders(bookingId?: string): Promise<BeverageOrder[]>;
+  addOrder(bookingId: string, lines: OrderLine[]): Promise<BeverageOrder>;
+  sendWinBackCoupon(customerId: string): Promise<void>;
 }

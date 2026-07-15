@@ -20,7 +20,7 @@ export function LoyaltyStampCard({ collected = 0, total = 8 }: { collected?: num
               className={cn(
                 "flex size-8 items-center justify-center rounded-[var(--radius-full)] border",
                 i < collected
-                  ? "border-zone-cafe bg-zone-cafe-soft text-zone-cafe"
+                  ? "border-zone-large bg-zone-large-soft text-zone-large"
                   : "border-dashed border-line text-ink3"
               )}
             >

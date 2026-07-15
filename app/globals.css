@@ -50,12 +50,12 @@
   --warning-soft: rgba(251, 191, 36, 0.14);
 
   /* Zone accents (badges / legends — categorical, not full chart palettes) */
-  --zone-studio: #f472b6;
-  --zone-studio-soft: rgba(244, 114, 182, 0.14);
-  --zone-coworking: #818cf8;
-  --zone-coworking-soft: rgba(129, 140, 248, 0.14);
-  --zone-cafe: #fbbf24;
-  --zone-cafe-soft: rgba(251, 191, 36, 0.14);
+  --zone-small: #f472b6;
+  --zone-small-soft: rgba(244, 114, 182, 0.14);
+  --zone-medium: #818cf8;
+  --zone-medium-soft: rgba(129, 140, 248, 0.14);
+  --zone-large: #fbbf24;
+  --zone-large-soft: rgba(251, 191, 36, 0.14);
 
   /* Glass surfaces — the signature treatment, used deliberately (metric
      cards, sidebar, topbar), not on every panel */
@@ -112,12 +112,12 @@
   --warning: #b45309;
   --warning-soft: #fef3c7;
 
-  --zone-studio: #db2777;
-  --zone-studio-soft: #fce7f3;
-  --zone-coworking: #4f46e5;
-  --zone-coworking-soft: #e0e7ff;
-  --zone-cafe: #d97706;
-  --zone-cafe-soft: #fef3c7;
+  --zone-small: #db2777;
+  --zone-small-soft: #fce7f3;
+  --zone-medium: #4f46e5;
+  --zone-medium-soft: #e0e7ff;
+  --zone-large: #d97706;
+  --zone-large-soft: #fef3c7;
 
   --glass-bg: rgba(255, 255, 255, 0.55);
   --glass-bg-strong: rgba(255, 255, 255, 0.7);
@@ -156,12 +156,12 @@
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
-  --color-zone-studio: var(--zone-studio);
-  --color-zone-studio-soft: var(--zone-studio-soft);
-  --color-zone-coworking: var(--zone-coworking);
-  --color-zone-coworking-soft: var(--zone-coworking-soft);
-  --color-zone-cafe: var(--zone-cafe);
-  --color-zone-cafe-soft: var(--zone-cafe-soft);
+  --color-zone-small: var(--zone-small);
+  --color-zone-small-soft: var(--zone-small-soft);
+  --color-zone-medium: var(--zone-medium);
+  --color-zone-medium-soft: var(--zone-medium-soft);
+  --color-zone-large: var(--zone-large);
+  --color-zone-large-soft: var(--zone-large-soft);
   --color-glass: var(--glass-bg);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;

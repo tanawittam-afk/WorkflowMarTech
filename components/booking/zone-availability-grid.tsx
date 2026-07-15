@@ -1,6 +1,6 @@
 "use client";
 
-import { Coffee, Mic2, Users2 } from "lucide-react";
+import { BookOpen, Mic2, MonitorPlay } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,15 +9,15 @@ import { useBookingStore, TODAY_ISO } from "@/lib/store/booking-store";
 import type { Zone, ZoneId } from "@/lib/data/types";
 
 const ZONE_ICONS: Record<ZoneId, typeof Mic2> = {
-  "zone-1-studio": Mic2,
-  "zone-2-coworking": Users2,
-  "zone-3-cafe": Coffee,
+  "zone-small": BookOpen,
+  "zone-medium": MonitorPlay,
+  "zone-large": Mic2,
 };
 
-const ZONE_BADGE_VARIANT: Record<ZoneId, "zone-studio" | "zone-coworking" | "zone-cafe"> = {
-  "zone-1-studio": "zone-studio",
-  "zone-2-coworking": "zone-coworking",
-  "zone-3-cafe": "zone-cafe",
+const ZONE_BADGE_VARIANT: Record<ZoneId, "zone-small" | "zone-medium" | "zone-large"> = {
+  "zone-small": "zone-small",
+  "zone-medium": "zone-medium",
+  "zone-large": "zone-large",
 };
 
 export function ZoneAvailabilityGrid({

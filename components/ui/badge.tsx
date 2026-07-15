@@ -14,9 +14,9 @@ const badgeVariants = cva(
         success: "bg-success-soft text-success border-transparent",
         warning: "bg-warning-soft text-warning border-transparent",
         danger: "bg-danger-soft text-danger border-transparent",
-        "zone-studio": "bg-zone-studio-soft text-zone-studio border-transparent",
-        "zone-coworking": "bg-zone-coworking-soft text-zone-coworking border-transparent",
-        "zone-cafe": "bg-zone-cafe-soft text-zone-cafe border-transparent",
+        "zone-small": "bg-zone-small-soft text-zone-small border-transparent",
+        "zone-medium": "bg-zone-medium-soft text-zone-medium border-transparent",
+        "zone-large": "bg-zone-large-soft text-zone-large border-transparent",
       },
     },
     defaultVariants: {

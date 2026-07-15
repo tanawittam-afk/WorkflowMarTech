@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ClusterSummary, ClusterPoint } from "@/lib/analytics/kmeans";
 
-const CLUSTER_COLORS = ["var(--accent)", "var(--accent-2)", "var(--zone-cafe)"];
+const CLUSTER_COLORS = ["var(--accent)", "var(--accent-2)", "var(--zone-large)"];
 
 export function ClusterScatterChart({
   points,

@@ -9,7 +9,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useBookingStore, TODAY_ISO } from "@/lib/store/booking-store";
-import { addHours, formatHour, hasConflict, HOUR_OPTIONS } from "@/lib/booking-helpers";
+import {
+  addHours,
+  formatHour,
+  hasConflict,
+  HOUR_OPTIONS,
+  isOffPeakHour,
+  priceForSlot,
+} from "@/lib/booking-helpers";
 import type { Zone } from "@/lib/data/types";
 
 const DAY_OFFSETS = [0, 1, 2];
@@ -35,6 +42,7 @@ export function RoomSlotPicker({
 }) {
   const allRooms = useBookingStore((s) => s.rooms);
   const bookings = useBookingStore((s) => s.bookings);
+  const dynamicPricing = useBookingStore((s) => s.dynamicPricing);
   const rooms = useMemo(() => allRooms.filter((r) => r.zoneId === zone.id), [allRooms, zone.id]);
 
   const [roomId, setRoomId] = useState(rooms[0]?.id ?? "");
@@ -45,7 +53,9 @@ export function RoomSlotPicker({
   const date = isoPlusDays(dayOffset);
   const startTime = `${String(startHour).padStart(2, "0")}:00`;
   const endTime = addHours(startHour, duration);
-  const amountPaid = zone.hourlyRate * duration;
+  const amountPaid = priceForSlot(zone, startHour, duration, dynamicPricing);
+  const fullPrice = zone.hourlyRate * duration;
+  const offPeakApplied = amountPaid < fullPrice;
 
   const conflict = useMemo(
     () => (roomId ? hasConflict(bookings, roomId, date, startTime, endTime) : false),
@@ -103,6 +113,7 @@ export function RoomSlotPicker({
                 {HOUR_OPTIONS.map((h) => (
                   <SelectItem key={h} value={String(h)}>
                     {formatHour(h)}
+                    {dynamicPricing && isOffPeakHour(h) ? " · Off-Peak −18%" : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -135,6 +146,11 @@ export function RoomSlotPicker({
         <div className="flex items-center justify-between border-t border-line pt-4">
           <div className="text-sm text-ink2">
             Total: <span className="font-mono font-semibold text-ink">฿{amountPaid}</span>
+            {offPeakApplied && (
+              <span className="ml-2 text-xs text-success">
+                <s className="text-ink3">฿{fullPrice}</s> Off-Peak −18% applied
+              </span>
+            )}
           </div>
           <Button
             disabled={!roomId || conflict}

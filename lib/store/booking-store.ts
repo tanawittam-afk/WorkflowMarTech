@@ -4,21 +4,25 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import {
+  BEVERAGE_ORDERS,
   BOOKINGS,
   CUSTOMERS,
   NOTIFICATIONS,
   REVIEWS,
   ROOMS,
   TODAY_ISO,
+  WINBACK_DISCOUNT,
   ZONES,
 } from "@/lib/data/mock-data";
 import type { BookingRepo } from "@/lib/data/repo";
 import type {
+  BeverageOrder,
   Booking,
   Customer,
   LineNotification,
   NewBookingInput,
   NewCustomerInput,
+  OrderLine,
   Review,
   Room,
   Zone,
@@ -38,6 +42,12 @@ interface BookingState extends SessionState {
   bookings: Booking[];
   reviews: Review[];
   notifications: LineNotification[];
+  orders: BeverageOrder[];
+
+  // CDP activation state (MarTech brief)
+  dynamicPricing: boolean;
+  activeBundles: string[]; // BundleRule ids live on the booking page
+  winBackSent: string[]; // customerIds already sent a win-back coupon
 
   loginAsMarketing: () => void;
   loginAsCustomer: (customerId: string) => void;
@@ -48,10 +58,15 @@ interface BookingState extends SessionState {
   checkOut: (bookingId: string) => Booking;
   submitCsat: (bookingId: string, rating: 1 | 2 | 3 | 4 | 5) => void;
   clickCoupon: (notificationId: string) => void;
+  addOrder: (bookingId: string, lines: OrderLine[]) => BeverageOrder;
+  toggleDynamicPricing: () => void;
+  toggleBundle: (ruleId: string) => void;
+  sendWinBackCoupon: (customerId: string) => void;
 }
 
 let nextCustomerSeq = CUSTOMERS.length + 1;
 let nextBookingSeq = BOOKINGS.length + 1;
+let nextOrderSeq = BEVERAGE_ORDERS.length + 1;
 
 export const useBookingStore = create<BookingState>()(
   persist(
@@ -64,6 +79,10 @@ export const useBookingStore = create<BookingState>()(
       bookings: BOOKINGS,
       reviews: REVIEWS,
       notifications: NOTIFICATIONS,
+      orders: BEVERAGE_ORDERS,
+      dynamicPricing: false,
+      activeBundles: [],
+      winBackSent: [],
 
       loginAsMarketing: () => set({ role: "marketing", currentCustomerId: null }),
 
@@ -72,8 +91,11 @@ export const useBookingStore = create<BookingState>()(
       logout: () => set({ role: null, currentCustomerId: null }),
 
       registerCustomer: (input) => {
-        const customerId = `C${String(nextCustomerSeq++).padStart(3, "0")}`;
-        const customer: Customer = { customerId, ...input };
+        const seq = nextCustomerSeq++;
+        const customerId = `C${String(seq).padStart(3, "0")}`;
+        // Simulated LINE OA registration mints the cross-touchpoint LINE UID.
+        const lineUid = `U${(0x1000000 + seq * 0x8f7c3).toString(16).slice(0, 8)}`;
+        const customer: Customer = { customerId, lineUid, ...input };
         set((s) => ({ customers: [...s.customers, customer] }));
         return customer;
       },
@@ -145,9 +167,59 @@ export const useBookingStore = create<BookingState>()(
           ),
         }));
       },
+
+      addOrder: (bookingId, lines) => {
+        const booking = get().bookings.find((b) => b.id === bookingId)!;
+        const order: BeverageOrder = {
+          id: `OR${String(nextOrderSeq++).padStart(3, "0")}`,
+          bookingId,
+          customerId: booking.customerId,
+          lines,
+          amount: lines.reduce((s, l) => s + l.unitPrice * l.qty, 0),
+          createdAt: new Date().toISOString(),
+        };
+        set((s) => ({ orders: [...s.orders, order] }));
+        return order;
+      },
+
+      toggleDynamicPricing: () => set((s) => ({ dynamicPricing: !s.dynamicPricing })),
+
+      toggleBundle: (ruleId) =>
+        set((s) => ({
+          activeBundles: s.activeBundles.includes(ruleId)
+            ? s.activeBundles.filter((id) => id !== ruleId)
+            : [...s.activeBundles, ruleId],
+        })),
+
+      // Fires a personalised win-back coupon into the customer's (simulated)
+      // LINE OA feed — it shows up on their notifications page, and the
+      // booking-confirm page auto-applies the discount on their next booking.
+      sendWinBackCoupon: (customerId) => {
+        if (get().winBackSent.includes(customerId)) return;
+        const customer = get().customers.find((c) => c.customerId === customerId);
+        const notification: LineNotification = {
+          id: `N${String(get().notifications.length + 1).padStart(3, "0")}-WB-${customerId}`,
+          customerId,
+          kind: "broadcast-coupon",
+          message: `We miss you${customer ? `, ${customer.name.split(" ")[0]}` : ""}! Here's ${Math.round(WINBACK_DISCOUNT * 100)}% off your next room booking.`,
+          createdAt: new Date().toISOString(),
+        };
+        set((s) => ({
+          winBackSent: [...s.winBackSent, customerId],
+          notifications: [...s.notifications, notification],
+        }));
+      },
     }),
     {
       name: "bookingweb-session",
+      // v2: MarTech-brief retrofit (new zones/rooms/pricing + beverage
+      // orders). Old persisted snapshots reference zone ids that no longer
+      // exist, so any pre-v2 state is discarded in favour of fresh seed data.
+      version: 2,
+      migrate: (persisted, version) => {
+        if (version < 2) return undefined as never;
+        return persisted as never;
+      },
       // Only persist session + the deltas a demo adds on top of seed data —
       // keeps the seeded dataset itself always sourced from mock-data.ts.
       partialize: (s) => ({
@@ -156,6 +228,10 @@ export const useBookingStore = create<BookingState>()(
         customers: s.customers,
         bookings: s.bookings,
         notifications: s.notifications,
+        orders: s.orders,
+        dynamicPricing: s.dynamicPricing,
+        activeBundles: s.activeBundles,
+        winBackSent: s.winBackSent,
       }),
     }
   )
@@ -194,6 +270,15 @@ export const mockRepo: BookingRepo = {
   registerCustomer: (input) => Promise.resolve(useBookingStore.getState().registerCustomer(input)),
   clickCoupon: (notificationId) => {
     useBookingStore.getState().clickCoupon(notificationId);
+    return Promise.resolve();
+  },
+  listOrders: (bookingId) => {
+    const orders = useBookingStore.getState().orders;
+    return Promise.resolve(bookingId ? orders.filter((o) => o.bookingId === bookingId) : orders);
+  },
+  addOrder: (bookingId, lines) => Promise.resolve(useBookingStore.getState().addOrder(bookingId, lines)),
+  sendWinBackCoupon: (customerId) => {
+    useBookingStore.getState().sendWinBackCoupon(customerId);
     return Promise.resolve();
   },
 };
