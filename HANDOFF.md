@@ -37,6 +37,20 @@ Also realigned: CRM table → the three real tables plus ETL/model-derived field
 
 Verified: lint clean, build passes, `/martech` 200, all brief terms present (bundle-grepped for the ones behind the phase-click interaction), and zero leftovers of ROAS / NPS / Promoters / Happy Hour / Meta Pixel.
 
+### Identity & verification — decision recorded, NOT built
+Owner asked whether identity should rest on LINE UID alone, or also phone / email. Findings from the code:
+
+- `lib/data/types.ts` already stores `phoneNumber`, `email`, **and** `lineUid`, and the real primary key is `customerId` ("C001") — `lineUid` is only *displayed* as the unifying Customer ID. **The architecture is not LINE-locked; the UI just presents it that way.**
+- `app/(auth)/register/page.tsx` already collects phone and email.
+- `registerCustomer` in `lib/store/booking-store.ts` **mints `lineUid` from a running sequence** (`U` + hex) — it is not a real LINE login.
+- **There is no identity-verification step anywhere** — no OTP, no confirm. Register submits straight through.
+
+The framing that resolves it: `MarketTech.md` specifies LINE UID as the **join key** across the three ingestion touchpoints — a data-architecture choice. **Verification method is a separate concern the brief never addresses.** Phone/email verification can coexist with a LINE UID join key; both resolve to the same `customerId`.
+
+Decision for the 2026-07-21 demo: **talking points only, no code.** Deliberately not built — no `verifiedVia`/`verifiedAt` fields, no OTP screen, no verification badge in `/customers`. When presenting, say the model *supports* multiple identifiers; do **not** claim a working verification flow, because there is no screen to show.
+
+If built later (model is ready, so this is additive): add `verifiedVia: "phone" | "email" | "line"` + `verifiedAt` to `Customer`, a mock OTP step after register, and a verification badge in `(marketing)/customers`. Production default would be phone OTP with LINE linked afterwards for coupon delivery; coupons fall back to SMS/email when LINE is absent.
+
 ### Deploy — DONE 2026-07-20
 `vercel --prod` shipped `dpl_23MQu1kGZcsa2T5Dy2HzCiGuqzi7`, aliased to https://bookingweb-smart-space.vercel.app. This closed the 2026-07-15 gap (the retrofit CDP dashboard is finally live) and carried the presentation pass with it. Verified unauthenticated: `/`, `/martech`, `/marketing-user`, `/dashboard` all 200 — **no Vercel deployment protection**, so the shared QR reaches the app rather than a Vercel login wall. Landing HTML emits all three hrefs on prod.
 
