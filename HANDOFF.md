@@ -26,6 +26,17 @@ Goal: make the demo survive a projector walkthrough **and** a room full of peopl
 ### NOT verified — do this first
 No browser automation is installed in this repo, so **interactive behaviour was never click-tested**: (a) mobile drawer opens/closes and navigates at 390px; (b) Reset demo confirm → data actually returns to seed state and the dashboard re-renders; (c) every `/dashboard` recharts row at 390px (recharts measures max-content silently when an ancestor lacks `min-w-0`).
 
+### /martech realigned to MarketTech.md — DONE 2026-07-20
+`/martech` was built 2026-07-10 from `Project (Proposal).md`, **before** `MarketTech.md` (2026-07-15), and the retrofit deliberately skipped it. A grep proved the gap: it named none of the brief's analytics core — no K-Means, Apriori, Time-Series, CSAT, AOV, attach rate or churn, only one stray "Dynamic Pricing". It told a generic acquisition→ROAS funnel story instead, so the three surfaces read as unrelated projects.
+
+**Key insight that made this safe the night before a demo:** the page is fully data-driven — `PHASES`, `KPIS`, `CRM_FIELDS`, `EVENT_GROUPS`, `DESTINATIONS`, `GOALS` are plain arrays the renderer consumes. Content was rewritten; **no rendering, animation, or bilingual machinery was touched.**
+
+The 5 phases now mirror the brief's pipeline: Data Ingestion (3 touchpoints) → ETL → Advanced Analytics (the 3 models, with real in/out and `Lift > 2.5`) → Data Activation (2 automated actions) → Measure & Close the Loop (the 3 objectives). The `PhaseKey` union still reads `acquisition|conversion|purchase|service|retention` — deliberately left alone, since those identifiers also appear in six render sites and are invisible to a viewer. Rename them in a calmer session.
+
+Also realigned: CRM table → the three real tables plus ETL/model-derived fields; events 13 → 18; destinations GA4/Meta Pixel → LINE OA/Booking Site/CDP/Dashboard; ROAS → Attach Rate; NPS → CSAT (brief uses CSAT); hero, workflow heading, footer breadcrumb and goals footer copy.
+
+Verified: lint clean, build passes, `/martech` 200, all brief terms present (bundle-grepped for the ones behind the phase-click interaction), and zero leftovers of ROAS / NPS / Promoters / Happy Hour / Meta Pixel.
+
 ### Deploy — DONE 2026-07-20
 `vercel --prod` shipped `dpl_23MQu1kGZcsa2T5Dy2HzCiGuqzi7`, aliased to https://bookingweb-smart-space.vercel.app. This closed the 2026-07-15 gap (the retrofit CDP dashboard is finally live) and carried the presentation pass with it. Verified unauthenticated: `/`, `/martech`, `/marketing-user`, `/dashboard` all 200 — **no Vercel deployment protection**, so the shared QR reaches the app rather than a Vercel login wall. Landing HTML emits all three hrefs on prod.
 
