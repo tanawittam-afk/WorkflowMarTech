@@ -62,6 +62,8 @@ interface BookingState extends SessionState {
   toggleDynamicPricing: () => void;
   toggleBundle: (ruleId: string) => void;
   sendWinBackCoupon: (customerId: string) => void;
+  /** Discards every demo-created delta and restores the seeded dataset. Keeps the current session so a live demo does not get logged out mid-presentation. */
+  resetDemo: () => void;
 }
 
 let nextCustomerSeq = CUSTOMERS.length + 1;
@@ -208,6 +210,24 @@ export const useBookingStore = create<BookingState>()(
           winBackSent: [...s.winBackSent, customerId],
           notifications: [...s.notifications, notification],
         }));
+      },
+
+      resetDemo: () => {
+        // ID sequences live outside the store, so they must rewind too —
+        // otherwise post-reset records resume numbering from the old run.
+        nextCustomerSeq = CUSTOMERS.length + 1;
+        nextBookingSeq = BOOKINGS.length + 1;
+        nextOrderSeq = BEVERAGE_ORDERS.length + 1;
+        set({
+          customers: CUSTOMERS,
+          bookings: BOOKINGS,
+          notifications: NOTIFICATIONS,
+          orders: BEVERAGE_ORDERS,
+          reviews: REVIEWS,
+          dynamicPricing: false,
+          activeBundles: [],
+          winBackSent: [],
+        });
       },
     }),
     {

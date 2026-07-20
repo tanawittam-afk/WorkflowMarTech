@@ -106,11 +106,18 @@ export default function LandingPage() {
                 campaign. Available in English and Thai.
               </p>
             </div>
-            <Button asChild variant="secondary" size="lg">
-              <Link href="/martech">
-                See how the engine works <ArrowRight className="size-4" />
-              </Link>
-            </Button>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row md:flex-col lg:flex-row">
+              <Button asChild variant="secondary" size="lg">
+                <Link href="/martech">
+                  See how the engine works <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="secondary" size="lg">
+                <Link href="/marketing-user">
+                  Open the CDP dashboard <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </section>

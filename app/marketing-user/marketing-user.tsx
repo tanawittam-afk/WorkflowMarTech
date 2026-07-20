@@ -21,6 +21,7 @@
  * relative day offsets ("X วันก่อน") — no absolute clock reads in render.
  */
 
+import Link from "next/link";
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { AnimatePresence, animate, motion, useReducedMotion } from "framer-motion";
 import { Toaster, toast } from "sonner";
@@ -1859,7 +1860,7 @@ export default function MarketingUser({ fontClass }: { fontClass: string }) {
       {/* Top nav */}
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3">
-          <div className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5" aria-label="กลับหน้าแรก Smart Space">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
               <LayoutDashboard className="h-4 w-4" />
             </div>
@@ -1874,7 +1875,7 @@ export default function MarketingUser({ fontClass }: { fontClass: string }) {
                 Smart Space CDP · 20 ห้อง · เชื่อมทุกธุรกรรมด้วย LINE UID
               </p>
             </div>
-          </div>
+          </Link>
           <nav className="flex rounded-full border border-slate-200 bg-slate-100 p-0.5 text-xs font-semibold">
             <button
               type="button"

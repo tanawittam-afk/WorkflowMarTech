@@ -13,8 +13,9 @@ import {
 
 import { cn } from "@/lib/utils";
 import { useBookingStore } from "@/lib/store/booking-store";
+import { ResetDemoButton } from "@/components/layout/reset-demo-button";
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/analytics", label: "Analytics & Statistics", icon: BarChart3 },
   { href: "/customers", label: "Customers", icon: Users },
@@ -54,7 +55,8 @@ export function MarketingSidebar() {
           );
         })}
       </nav>
-      <div className="border-t border-line p-3">
+      <div className="flex flex-col gap-1 border-t border-line p-3">
+        <ResetDemoButton />
         <button
           onClick={() => {
             logout();

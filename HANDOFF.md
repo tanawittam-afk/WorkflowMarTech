@@ -1,6 +1,37 @@
 # BookingWeb — HANDOFF
 
-_Last updated: 2026-07-15 (evening — retrofit complete, ready to deploy)_
+_Last updated: 2026-07-20 (presentation-ready pass — DEPLOYED; click-test outstanding)_
+
+## ⏳ Presentation-ready pass (for class demo 2026-07-21)
+
+Goal: make the demo survive a projector walkthrough **and** a room full of people opening it on their own phones. Plan: `C:\Users\User\.claude\plans\project-bookingweb-idempotent-forest.md`.
+
+**User decisions (locked):** (1) demo-realistic only — real backend deferred to a later pass; (2) presenter drives the main flow AND a QR is shared for classmates; (3) `/marketing-user` stays architecturally untouched — `(marketing)/dashboard` (real zustand) is the closed-loop proof; (4) `/martech` text-only fixes, never its data model.
+
+### Biggest find — mobile marketing section was a dead end
+`MarketingSidebar` is `md:flex` only, and the `MarketingTopbar` hamburger had **no `onClick`** — a phone user landing on `/dashboard` could not reach `/analytics`, `/customers`, `/bookings`, or log out without typing URLs. This was not in the original plan and outranked the planned Tier-3 polish.
+
+### Changes
+- `components/layout/marketing-mobile-nav.tsx` **(new)** — Radix-Dialog drawer reusing `NAV_ITEMS`; wired into `marketing-topbar.tsx` in place of the dead button
+- `components/layout/reset-demo-button.tsx` **(new)** — confirm-gated demo reset; mounted in both the desktop sidebar footer and the mobile drawer
+- `lib/store/booking-store.ts` — new `resetDemo()`; **also rewinds the module-level `nextCustomerSeq`/`nextBookingSeq`/`nextOrderSeq`**, otherwise post-reset IDs resume from the old run. Keeps the session (no logout mid-demo)
+- `components/layout/marketing-sidebar.tsx` — `NAV_ITEMS` now exported (shared with the drawer)
+- `app/page.tsx` — added the missing entry point to `/marketing-user`; landing now reaches all three surfaces
+- `app/marketing-user/marketing-user.tsx` — header logo is a `Link href="/"` (was a dead end). Nav only; data engine untouched
+- `qr-smart-space.svg` **(new)** — 1024px level-H QR of the prod URL for the slide deck. Regenerate with `qrcode.react` + `renderToStaticMarkup`; delete freely, it is a deliverable not a dependency
+
+### Verified
+`npm run lint` clean · `npm run build` passes, 15 routes · dev server returns 200 on `/`, `/martech`, `/marketing-user`, `/login`, `/dashboard`, `/book` · landing HTML now emits all three hrefs · `/marketing-user` emits the home link.
+
+### NOT verified — do this first
+No browser automation is installed in this repo, so **interactive behaviour was never click-tested**: (a) mobile drawer opens/closes and navigates at 390px; (b) Reset demo confirm → data actually returns to seed state and the dashboard re-renders; (c) every `/dashboard` recharts row at 390px (recharts measures max-content silently when an ancestor lacks `min-w-0`).
+
+### Deploy — DONE 2026-07-20
+`vercel --prod` shipped `dpl_23MQu1kGZcsa2T5Dy2HzCiGuqzi7`, aliased to https://bookingweb-smart-space.vercel.app. This closed the 2026-07-15 gap (the retrofit CDP dashboard is finally live) and carried the presentation pass with it. Verified unauthenticated: `/`, `/martech`, `/marketing-user`, `/dashboard` all 200 — **no Vercel deployment protection**, so the shared QR reaches the app rather than a Vercel login wall. Landing HTML emits all three hrefs on prod.
+
+---
+
+_Previous update: 2026-07-15 (evening — retrofit complete, ready to deploy)_
 
 ## ✅ Retrofit main app per new BriefMarTech — DONE (all 5 phases)
 
