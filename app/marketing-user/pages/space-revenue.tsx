@@ -9,6 +9,7 @@ import { InsightStrip } from "../components/insight-strip";
 import { KpiTile } from "../components/kpi-tile";
 import { OccupancyHeatmap } from "../components/occupancy-heatmap";
 import { fmtBaht, fmtInt, fmtPct } from "../components/primitives";
+import { StaggerGrid } from "../components/stagger-grid";
 import { type Action } from "../lib/reducer";
 
 export function SpaceRevenue({ state, m, dispatch }: { state: AppState; m: Metrics; dispatch: React.Dispatch<Action> }) {
@@ -16,7 +17,7 @@ export function SpaceRevenue({ state, m, dispatch }: { state: AppState; m: Metri
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <StaggerGrid className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <KpiTile icon={<CalendarCheck className="h-3.5 w-3.5" />} label="Booking Volume" value={m.bookingCount30} format={fmtInt} hint="30 วันล่าสุด" />
         <KpiTile
           icon={<ThermometerSun className="h-3.5 w-3.5" />}
@@ -39,7 +40,7 @@ export function SpaceRevenue({ state, m, dispatch }: { state: AppState; m: Metri
           format={(n) => fmtPct(n, 0)}
           hint="สัดส่วนการจองช่วง 21:00–09:00"
         />
-      </div>
+      </StaggerGrid>
 
       <div>
         <OccupancyHeatmap state={state} dispatch={dispatch} />

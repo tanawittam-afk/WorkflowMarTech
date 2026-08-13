@@ -23,7 +23,7 @@ export function ChurnTable({ m, dispatch }: { m: Metrics; dispatch: React.Dispat
         <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[460px] text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
+              <tr className="border-b border-cdp-border text-[10px] uppercase tracking-wide text-cdp-ink3">
                 <th className="pb-2 pr-2 font-semibold">ลูกค้า</th>
                 <th className="pb-2 pr-2 font-semibold">ยอดสะสม</th>
                 <th className="pb-2 pr-2 font-semibold">ล่าสุด</th>
@@ -33,13 +33,13 @@ export function ChurnTable({ m, dispatch }: { m: Metrics; dispatch: React.Dispat
             </thead>
             <tbody>
               {m.churnRows.map((row) => (
-                <tr key={row.uid} className="border-b border-slate-100 last:border-0">
+                <tr key={row.uid} className="border-b border-cdp-border last:border-0">
                   <td className="py-2.5 pr-2">
-                    <p className="font-semibold text-slate-800">{row.name}</p>
+                    <p className="font-semibold text-cdp-ink">{row.name}</p>
                     <PersonaChip persona={row.persona} />
                   </td>
-                  <td className="py-2.5 pr-2 font-semibold tabular-nums text-slate-700">{fmtBaht(row.monetary)}</td>
-                  <td className="py-2.5 pr-2 text-slate-500">{row.recency} วันก่อน</td>
+                  <td className="py-2.5 pr-2 font-semibold tabular-nums text-cdp-ink2">{fmtBaht(row.monetary)}</td>
+                  <td className="py-2.5 pr-2 text-cdp-ink3">{row.recency} วันก่อน</td>
                   <td className="py-2.5 pr-2">
                     <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-bold text-red-600 ring-1 ring-red-200">
                       <Flame className="h-3 w-3" />
@@ -58,7 +58,7 @@ export function ChurnTable({ m, dispatch }: { m: Metrics; dispatch: React.Dispat
                           dispatch({ type: "sendCoupon", uid: row.uid });
                           toast.success(`ส่งสำเร็จ: คูปองส่วนลด 15% ถูกยิงตรงเข้า LINE ของ ${row.name} แล้ว!`);
                         }}
-                        className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+                        className="inline-flex items-center gap-1 rounded-md bg-cdp-accent px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-sm transition-colors hover:bg-cdp-accent-strong"
                       >
                         <Send className="h-3.5 w-3.5" />
                         Sync & Send คูปองเข้า LINE OA
@@ -71,7 +71,7 @@ export function ChurnTable({ m, dispatch }: { m: Metrics; dispatch: React.Dispat
           </table>
         </div>
       )}
-      <p className="mt-3 text-[10px] text-slate-400">
+      <p className="mt-3 text-[10px] text-cdp-ink3">
         เคล็ดลับ: ส่งคูปองแล้วไปที่แท็บ「จำลองการจองของลูกค้า」เลือกลูกค้าคนเดิมเพื่อดูคูปองถูกใช้จริง —
         LINE OA Conversion จะขยับทันที
       </p>

@@ -12,6 +12,7 @@ import { KpiTile } from "../components/kpi-tile";
 import { fmtInt, fmtPct } from "../components/primitives";
 import { RfmTable } from "../components/rfm-table";
 import { SegmentScatter } from "../components/segment-scatter";
+import { StaggerGrid } from "../components/stagger-grid";
 
 export function CustomerLoyalty({ state, m, dispatch }: { state: AppState; m: Metrics; dispatch: React.Dispatch<Action> }) {
   const rfm = rfmTiers(state);
@@ -20,7 +21,7 @@ export function CustomerLoyalty({ state, m, dispatch }: { state: AppState; m: Me
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <StaggerGrid className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <KpiTile icon={<Users className="h-3.5 w-3.5" />} label="Active Customers" value={m.activeCount} format={fmtInt} hint={`จากทั้งหมด ${m.totalCustomers} คน`} />
         <KpiTile icon={<Repeat className="h-3.5 w-3.5" />} label="Repeat Booking Rate" value={m.repeatRate} format={(n) => fmtPct(n, 0)} />
         <KpiTile
@@ -31,7 +32,7 @@ export function CustomerLoyalty({ state, m, dispatch }: { state: AppState; m: Me
           tone={atRiskCount >= 4 ? "bad" : "neutral"}
         />
         <KpiTile icon={<HeartPulse className="h-3.5 w-3.5" />} label="CSAT" value={m.csat} format={(n) => n.toFixed(1)} hint="เต็ม 5" />
-      </div>
+      </StaggerGrid>
 
       <SegmentScatter rows={rfm} />
 

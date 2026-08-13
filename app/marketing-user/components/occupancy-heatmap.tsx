@@ -92,8 +92,8 @@ export function OccupancyHeatmap({
           disabled={pendingPricing}
           className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${
             state.dynamicPricing
-              ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-              : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+              ? "border-cdp-good/30 bg-cdp-good-soft text-cdp-good"
+              : "border-cdp-border bg-cdp-surface text-cdp-ink2 hover:bg-cdp-surface-2"
           }`}
           aria-pressed={state.dynamicPricing}
         >
@@ -106,7 +106,7 @@ export function OccupancyHeatmap({
             <>
               <span
                 className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${
-                  state.dynamicPricing ? "bg-emerald-500" : "bg-slate-300"
+                  state.dynamicPricing ? "bg-cdp-good" : "bg-cdp-border-strong"
                 }`}
               >
                 <span
@@ -130,7 +130,7 @@ export function OccupancyHeatmap({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+            <div className="mt-3 flex items-start gap-2 rounded-lg border border-cdp-good/25 bg-cdp-good-soft px-3 py-2 text-xs text-cdp-good">
               <Zap className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <p>
                 ระบบราคาอัตโนมัติทำงานอยู่ — ห้องในช่วง <b>Off-Peak (21:00–09:00)</b> ถูกปรับลดราคา{" "}
@@ -143,7 +143,7 @@ export function OccupancyHeatmap({
 
       <div className="mt-3 overflow-x-auto pb-1">
         <div className="min-w-[720px]">
-          <div className="grid grid-cols-[88px_repeat(24,1fr)] gap-[3px] text-[9px] text-slate-400">
+          <div className="grid grid-cols-[88px_repeat(24,1fr)] gap-[3px] text-[9px] text-cdp-ink3">
             <div />
             {Array.from({ length: 24 }, (_, h) => (
               <div key={h} className="text-center tabular-nums">
@@ -153,7 +153,7 @@ export function OccupancyHeatmap({
           </div>
           {ROOMS.map((room) => (
             <div key={room.id} className="mt-[3px] grid grid-cols-[88px_repeat(24,1fr)] gap-[3px]">
-              <div className="flex items-center truncate pr-1 text-[10px] font-medium text-slate-600">
+              <div className="flex items-center truncate pr-1 text-[10px] font-medium text-cdp-ink2">
                 {room.name}
               </div>
               {Array.from({ length: 24 }, (_, h) => {
@@ -165,10 +165,10 @@ export function OccupancyHeatmap({
                     title={`${room.name} · ${String(h).padStart(2, "0")}:00 · ${
                       isNew ? "จองใหม่ (Simulator)" : `ความหนาแน่น ${Math.round(baseHeatFor(room, h) * 100)}%`
                     }${discounted ? ` · Off-Peak -18% → ${fmtBaht(priceFor(room, h, true))}/ชม.` : ""}`}
-                    className={`h-3.5 rounded-[3px] ${isNew ? "ring-2 ring-blue-600 ring-offset-[0.5px]" : ""} ${
-                      discounted && !isNew ? "outline outline-1 -outline-offset-1 outline-emerald-500/60" : ""
+                    className={`h-3.5 rounded-[3px] ${isNew ? "ring-2 ring-cdp-accent ring-offset-[0.5px]" : ""} ${
+                      discounted && !isNew ? "outline outline-1 -outline-offset-1 outline-cdp-good/60" : ""
                     }`}
-                    style={{ backgroundColor: isNew ? "#2563eb" : heatColor(baseHeatFor(room, h)) }}
+                    style={{ backgroundColor: isNew ? "#4f46e5" : heatColor(baseHeatFor(room, h)) }}
                   />
                 );
               })}
@@ -177,7 +177,7 @@ export function OccupancyHeatmap({
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-4 text-[10px] text-slate-500">
+      <div className="mt-3 flex flex-wrap items-center gap-4 text-[10px] text-cdp-ink3">
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-[3px]" style={{ backgroundColor: heatColor(0.1) }} /> ว่าง / Off-Peak
         </span>
@@ -188,11 +188,11 @@ export function OccupancyHeatmap({
           <span className="h-2.5 w-2.5 rounded-[3px]" style={{ backgroundColor: heatColor(0.95) }} /> Peak / แน่นมาก
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-[3px] bg-blue-600" /> จองใหม่จาก Simulator
+          <span className="h-2.5 w-2.5 rounded-[3px] bg-cdp-accent" /> จองใหม่จาก Simulator
         </span>
         {state.dynamicPricing ? (
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-[3px] outline outline-1 -outline-offset-1 outline-emerald-500" />{" "}
+            <span className="h-2.5 w-2.5 rounded-[3px] outline outline-1 -outline-offset-1 outline-cdp-good" />{" "}
             ช่วงที่ลดราคาอยู่
           </span>
         ) : null}

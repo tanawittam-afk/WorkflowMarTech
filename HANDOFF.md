@@ -1,6 +1,29 @@
 # BookingWeb — HANDOFF
 
-_Last updated: 2026-08-13 (retired `/dashboard`, merged its live-data widgets into `/marketing-user` as a new Live Ops page — build/lint/typecheck clean, CDP-verified)_
+_Last updated: 2026-08-13 (redesigned the CDP Dashboard — left sidebar, warm token layer, decluttered Beverage page, harmonized Live Ops, subtle animation — build/lint/typecheck clean, CDP-verified)_
+
+## ✅ Redesigned `/marketing-user` CDP Dashboard (2026-08-13, third pass today)
+
+Owner asked for the CDP Dashboard to read more easily, move its top-tab nav to a left sidebar, warm up the color tone, and add subtle animation — plus a separate later ask (not yet actioned) to onboard `DavidHDev/react-bits` as a team skill. Plan: `C:\Users\User\.claude\plans\bookingweb-snoopy-wadler.md`.
+
+**Owner decisions (locked):** (1) redesign now, react-bits onboarding is a separate future step under the repo's formal per-skill governance pipeline (that pipeline currently only exists on branch `job-tracker-phase7-redesign`, not here); (2) react-bits scope for that later step: its 4 markdown-only Skills plus hand-picked framer-motion-only components (skip the gsap/three/ogl-dependent ones); (3) warm light palette with one clear accent, not another dark mode; (4) readability priorities in order: build the token layer first, declutter Beverage & Campaign, bump spacing/type, harmonize Live Ops into the main theme.
+
+**Changes:**
+- **Token layer** — `cdp-*` design tokens (bg/surface/border/ink/accent/good/warn/bad) added to `app/globals.css` (NOT a separate imported stylesheet — see gotcha below), warm neutral background + indigo `#4f46e5` accent, replacing the route's literal `slate-*`/`blue-600` Tailwind classes across every file in `app/marketing-user/**`
+- **Left sidebar** — `marketing-user.tsx`'s two stacked top-header rows became a fixed-width `<aside>` (desktop) with a framer-motion `layoutId` active-indicator that slides between items; mobile keeps the old horizontal pill row (`md:hidden`). The whole shell is now `h-screen` with the sidebar fixed and only the content column (`overflow-y-auto`) scrolling — needed a second fix after the first cut let the sidebar scroll away with long pages
+- **Typography/spacing** — bumped via `primitives.tsx` (`Card`, `SectionHeader`) and `kpi-tile.tsx` so it cascades to every page from one place
+- **Declutter Beverage & Campaign** (`pages/beverage-campaign.tsx`) — added an in-page segmented control splitting "Association & Recommendations" vs. "Active Bundles," roughly halving the page's stacked-block count
+- **Harmonized Live Ops** — new `app/marketing-user/components/live/*` (occupancy heatmap, zone pie, conversion chart, sentiment summary) + `components/metric-card.tsx`, light-themed twins of `components/dashboard/*` reading the same real `useBookingStore` data. `components/dashboard/*` themselves untouched — still used by the real app's dark-theme pages
+- **Animation polish** — `MotionConfig reducedMotion="user"` wraps the whole shell (one place instead of per-component `useReducedMotion()` checks); new `components/stagger-grid.tsx` gives every page's KPI-tile row a staggered entrance
+- Deleted two dead legacy files found during the sweep: `components/goal-bars.tsx`, `components/kpi-grid.tsx` (leftover from the pre-split single-file version, not imported anywhere)
+
+### Gotcha hit this session
+**Tailwind v4 `@theme` blocks only generate utility classes when they live in the same build graph as the file with `@import "tailwindcss"`.** First attempt put the `cdp-*` tokens in a separate `app/marketing-user/theme.css`, imported directly from `page.tsx` — it compiled with no errors, but every `bg-cdp-*`/`text-cdp-*`/`border-cdp-*` class silently resolved to `rgba(0,0,0,0)` (verified via computed-style JS in the browser — an invisible bug that LOOKED like it was working in a screenshot because transparent backgrounds on a white page + a stray dark border color read as "fine" at a glance). Fixed by moving every token straight into `app/globals.css`, following the exact pattern the app's own existing dark-glass tokens already use (`:root` variables → one `@theme inline {}` block). If a future route wants its own scoped token set, put it in `globals.css`, not a separate file.
+
+### Verified
+`npm run lint` clean · `npx tsc --noEmit` clean · `npm run build` passes, 14 routes. CDP-driven click-through: sidebar active-indicator slides correctly between all 6 nav items; Beverage & Campaign segmented control toggles; Live Ops renders fully warm-themed (no more dark-glass insert) with real data; sidebar stays fixed while scrolling a long page (verified after the h-screen fix); CDP hero numbers unchanged (+8.2%/+10.0%) confirming the mock engine wasn't touched.
+
+---
 
 ## ✅ Retired `/dashboard`, merged into `/marketing-user` (2026-08-13, same day, later pass)
 

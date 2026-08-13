@@ -17,7 +17,7 @@ export function DataSourcesStrip() {
   return (
     <Card className="p-4">
       <SectionHeader
-        icon={<Database className="h-4 w-4 text-blue-600" />}
+        icon={<Database className="h-4 w-4 text-cdp-accent" />}
         title="Data Source · 5 จุดนำเข้าข้อมูล"
         subtitle="เชื่อมทุกจุดด้วย Customer ID (LINE UID) เดียว"
       />
@@ -25,12 +25,12 @@ export function DataSourcesStrip() {
         {SOURCES.map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.name} className="flex flex-col items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50/60 p-3 text-center">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+            <div key={s.name} className="flex flex-col items-center gap-1.5 rounded-lg border border-cdp-border bg-cdp-surface-2/60 p-3 text-center">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cdp-accent-soft text-cdp-accent">
                 <Icon className="h-4 w-4" />
               </div>
-              <p className="text-xs font-semibold text-slate-800">{s.name}</p>
-              <p className="text-[10px] leading-tight text-slate-400">{s.detail}</p>
+              <p className="text-xs font-semibold text-cdp-ink">{s.name}</p>
+              <p className="text-[10px] leading-tight text-cdp-ink3">{s.detail}</p>
             </div>
           );
         })}

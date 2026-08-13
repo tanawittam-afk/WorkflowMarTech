@@ -2,16 +2,17 @@
 
 import { Radio } from "lucide-react";
 
-import { ConversionLineChart } from "@/components/dashboard/conversion-line-chart";
-import { MetricCard } from "@/components/dashboard/metric-card";
-import { OccupancyHeatmap } from "@/components/dashboard/occupancy-heatmap";
-import { SentimentTopicSummary } from "@/components/dashboard/sentiment-topic-summary";
-import { ZonePieChart } from "@/components/dashboard/zone-pie-chart";
 import { computeDashboardMetrics } from "@/lib/analytics/dashboard-metrics";
 import { BEVERAGES } from "@/lib/data/mock-data";
 import { TODAY_ISO, useBookingStore } from "@/lib/store/booking-store";
 
+import { LiveConversionChart } from "../components/live/live-conversion-chart";
+import { LiveOccupancyHeatmap } from "../components/live/live-occupancy-heatmap";
+import { LiveSentimentSummary } from "../components/live/live-sentiment-summary";
+import { LiveZonePie } from "../components/live/live-zone-pie";
+import { MetricCard } from "../components/metric-card";
 import { Card, SectionHeader } from "../components/primitives";
+import { StaggerGrid } from "../components/stagger-grid";
 
 // Illustrative baseline for the MoM registration-growth card — this
 // prototype has no historical monthly cohorts to compute a real trend from.
@@ -20,10 +21,10 @@ const LAST_MONTH_CUSTOMER_BASELINE = 16;
 /**
  * Real live-app data (the actual zustand booking store — real customers who
  * registered/booked through the demo flow), separate from every other page
- * in this shell which reads the seeded CDP mock engine. Deliberately reuses
- * `components/dashboard/*` widgets as-is (dark-glass tokens) rather than
- * reskinning them to match the CDP's light blue/white cards — the visual
- * seam is the signal that this section is live, not simulated.
+ * in this shell which reads the seeded CDP mock engine. Uses its own
+ * `components/live/*` widgets — light-themed CDP-styled twins of
+ * `components/dashboard/*` — so this page reads as part of the same
+ * dashboard instead of a foreign dark-glass insert.
  */
 export function LiveOps() {
   const customers = useBookingStore((s) => s.customers);
@@ -58,13 +59,13 @@ export function LiveOps() {
     <div className="space-y-4">
       <Card className="p-4">
         <SectionHeader
-          icon={<Radio className="h-4 w-4 text-blue-600" />}
+          icon={<Radio className="h-4 w-4" />}
           title="ข้อมูลจริงจากแอป Smart Space"
           subtitle="ต่างจากหน้าอื่นในแดชบอร์ดนี้ — หน้านี้อ่านข้อมูลจริงจากลูกค้าและการจองในแอป ไม่ใช่ข้อมูลจำลอง"
         />
       </Card>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <StaggerGrid className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <MetricCard label="Total Customers" value={String(totalCustomers)} />
         <MetricCard
           label="New Registration Rate"
@@ -83,16 +84,16 @@ export function LiveOps() {
           value={`${occupancyRate.toFixed(1)}%`}
           caption="Booked room-hours, last 30 days"
         />
-      </div>
+      </StaggerGrid>
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <OccupancyHeatmap bookings={bookings} rooms={rooms} />
-        <ZonePieChart bookings={bookings} zones={zones} />
+        <LiveOccupancyHeatmap bookings={bookings} rooms={rooms} />
+        <LiveZonePie bookings={bookings} zones={zones} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <ConversionLineChart notifications={notifications} />
-        <SentimentTopicSummary reviews={reviews} />
+        <LiveConversionChart notifications={notifications} />
+        <LiveSentimentSummary reviews={reviews} />
       </div>
     </div>
   );

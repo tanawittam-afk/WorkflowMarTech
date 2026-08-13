@@ -2,6 +2,8 @@
 
 import { AlertTriangle, Banknote, CheckCircle2, Coffee, Target, TrendingUp } from "lucide-react";
 
+import { StaggerGrid } from "../components/stagger-grid";
+
 import { regressionForecast, rfmTiers, SALES_GROWTH_TARGET_PCT } from "../lib/analytics-v2";
 import { type AppState } from "../lib/domain";
 import { type Metrics } from "../lib/metrics";
@@ -14,9 +16,9 @@ import { MarketingQuestionsPanel } from "../components/marketing-questions-panel
 import { Card, fmtBaht, fmtPct, SectionHeader } from "../components/primitives";
 
 const TONE_STYLE = {
-  good: { text: "text-emerald-700", bg: "bg-emerald-50", ring: "ring-emerald-200", icon: CheckCircle2 },
-  warn: { text: "text-amber-700", bg: "bg-amber-50", ring: "ring-amber-200", icon: AlertTriangle },
-  bad: { text: "text-red-700", bg: "bg-red-50", ring: "ring-red-200", icon: AlertTriangle },
+  good: { text: "text-cdp-good", bg: "bg-cdp-good-soft", ring: "ring-cdp-good/25", icon: CheckCircle2 },
+  warn: { text: "text-cdp-warn", bg: "bg-cdp-warn-soft", ring: "ring-cdp-warn/25", icon: AlertTriangle },
+  bad: { text: "text-cdp-bad", bg: "bg-cdp-bad-soft", ring: "ring-cdp-bad/25", icon: AlertTriangle },
 } as const;
 
 /**
@@ -54,19 +56,19 @@ export function ExecutiveOverview({
       <Card className="p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-cdp-ink3">
               Total Sales Growth · เป้าหมาย +{SALES_GROWTH_TARGET_PCT}% ใน 6 เดือน
             </p>
             <p
-              className={`mt-1 text-5xl font-bold tabular-nums ${onTarget ? "text-emerald-600" : "text-slate-900"}`}
+              className={`mt-1 text-5xl font-bold tabular-nums ${onTarget ? "text-cdp-good" : "text-cdp-ink"}`}
               style={{ fontFamily: "var(--font-bricolage), var(--font-anuphan), sans-serif" }}
             >
               {reg.actualGrowthPct >= 0 ? "+" : ""}
               {reg.actualGrowthPct.toFixed(1)}%
             </p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-cdp-ink3">
               เทียบก่อนเริ่ม CDP · พยากรณ์ 6 เดือนข้างหน้า{" "}
-              <span className="font-semibold text-slate-700">{reg.forecastGrowthPct.toFixed(1)}%</span>
+              <span className="font-semibold text-cdp-ink2">{reg.forecastGrowthPct.toFixed(1)}%</span>
             </p>
           </div>
           <div className={`flex items-center gap-2 rounded-xl px-4 py-3 ring-1 ${style.bg} ${style.ring}`}>
@@ -75,14 +77,14 @@ export function ExecutiveOverview({
               <p className={`text-sm font-bold ${style.text}`}>
                 {onTarget ? "ถึงเป้าตามกำหนด" : `ต่ำกว่าเป้า ${reg.gapPts.toFixed(1)} จุด`}
               </p>
-              <p className="text-[11px] text-slate-500">{scenario.label}</p>
+              <p className="text-[11px] text-cdp-ink3">{scenario.label}</p>
             </div>
           </div>
         </div>
       </Card>
 
       {/* Driver tiles */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <StaggerGrid className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <KpiTile icon={<Banknote className="h-3.5 w-3.5" />} label="Room Revenue" value={m.roomRev30} format={fmtBaht} hint="30 วันล่าสุด" />
         <KpiTile icon={<Coffee className="h-3.5 w-3.5" />} label="Beverage Revenue" value={m.bevRev30} format={fmtBaht} hint="30 วันล่าสุด" />
         <KpiTile icon={<Target className="h-3.5 w-3.5" />} label="Combined AOV" value={m.aov30} format={fmtBaht} hint="เฉลี่ยต่อการจอง" />
@@ -94,7 +96,7 @@ export function ExecutiveOverview({
           hint="6 เดือนข้างหน้า"
           tone={onTarget ? "good" : "warn"}
         />
-      </div>
+      </StaggerGrid>
 
       <ForecastChart reg={reg} />
 
@@ -109,7 +111,7 @@ export function ExecutiveOverview({
           <button
             type="button"
             onClick={() => onNavigate(goToPage[scenario.id]!)}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-cdp-accent px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-cdp-accent-strong"
           >
             {scenario.actionLabel}
           </button>

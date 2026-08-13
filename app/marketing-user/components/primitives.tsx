@@ -60,7 +60,11 @@ export function Card({ children, className = "" }: { children: React.ReactNode; 
   // tables) scrolls in its own overflow-x-auto container instead of
   // stretching the page on mobile.
   return (
-    <div className={`min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm ${className}`}>{children}</div>
+    <div
+      className={`min-w-0 rounded-xl border border-cdp-border bg-cdp-surface shadow-[var(--cdp-shadow-card)] ${className}`}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -74,15 +78,18 @@ export function SectionHeader({
   subtitle?: string;
 }) {
   return (
-    <div className="flex items-start gap-2.5">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cdp-accent-soft text-cdp-accent">
         {icon}
       </div>
       <div>
-        <h2 className="text-sm font-bold text-slate-900" style={{ fontFamily: "var(--font-bricolage), var(--font-anuphan), sans-serif" }}>
+        <h2
+          className="text-[15px] font-bold text-cdp-ink"
+          style={{ fontFamily: "var(--font-bricolage), var(--font-anuphan), sans-serif" }}
+        >
           {title}
         </h2>
-        {subtitle ? <p className="text-xs text-slate-500">{subtitle}</p> : null}
+        {subtitle ? <p className="mt-0.5 text-xs leading-relaxed text-cdp-ink3">{subtitle}</p> : null}
       </div>
     </div>
   );

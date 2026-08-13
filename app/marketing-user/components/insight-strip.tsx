@@ -11,22 +11,22 @@ import { type Insight } from "../lib/insights";
  */
 export function InsightStrip({ insight, onAction, actionLabel }: { insight: Insight; onAction?: () => void; actionLabel?: string }) {
   return (
-    <div className="mt-3 flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2.5 text-xs text-slate-700">
-      <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-500" />
+    <div className="mt-3 flex items-start gap-2 rounded-lg border border-cdp-accent/15 bg-cdp-accent-soft/60 px-3 py-2.5 text-xs text-cdp-ink2">
+      <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cdp-accent" />
       <div className="space-y-1">
         <p>
-          <span className="font-semibold text-slate-900">อ่านค่านี้:</span> {insight.read}
+          <span className="font-semibold text-cdp-ink">อ่านค่านี้:</span> {insight.read}
         </p>
         <p>
-          <span className="font-semibold text-slate-900">แปลว่า:</span> {insight.meaning}
+          <span className="font-semibold text-cdp-ink">แปลว่า:</span> {insight.meaning}
         </p>
         <p className="flex flex-wrap items-center gap-1.5">
-          <span className="font-semibold text-slate-900">ควรทำ:</span> {insight.action}
+          <span className="font-semibold text-cdp-ink">ควรทำ:</span> {insight.action}
           {onAction ? (
             <button
               type="button"
               onClick={onAction}
-              className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-2 py-1 text-[11px] font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+              className="inline-flex items-center gap-1 rounded-md bg-cdp-accent px-2 py-1 text-[11px] font-semibold text-white shadow-sm transition-colors hover:bg-cdp-accent-strong"
             >
               {actionLabel ?? "ส่งอนุมัติ"}
               <ArrowRight className="h-3 w-3" />

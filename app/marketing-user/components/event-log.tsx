@@ -10,7 +10,7 @@ export function EventLog({ events }: { events: AppEvent[] }) {
   if (events.length === 0) return null;
   const toneClass: Record<AppEvent["tone"], string> = {
     success: "bg-emerald-500",
-    info: "bg-blue-500",
+    info: "bg-cdp-accent",
     warn: "bg-amber-500",
   };
   return (
@@ -24,7 +24,7 @@ export function EventLog({ events }: { events: AppEvent[] }) {
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="flex items-start gap-2 text-xs text-slate-600"
+              className="flex items-start gap-2 text-xs text-cdp-ink2"
             >
               <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${toneClass[e.tone]}`} />
               <span>{e.text}</span>

@@ -48,7 +48,7 @@ export function RfmTable({ rows, state, dispatch }: { rows: RfmRow[]; state: App
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[560px] text-left text-xs">
           <thead>
-            <tr className="border-b border-slate-200 text-[10px] uppercase tracking-wide text-slate-400">
+            <tr className="border-b border-cdp-border text-[10px] uppercase tracking-wide text-cdp-ink3">
               <th className="pb-2 pr-2 font-semibold">ลูกค้า</th>
               <th className="pb-2 pr-2 font-semibold">Tier</th>
               <th className="pb-2 pr-2 font-semibold">R / F / M</th>
@@ -64,9 +64,9 @@ export function RfmTable({ rows, state, dispatch }: { rows: RfmRow[]; state: App
                   (p) => p.status === "pending" && p.payload.kind === "coupon" && p.payload.uids.includes(row.uid),
                 );
               return (
-                <tr key={row.uid} className="border-b border-slate-100 last:border-0">
+                <tr key={row.uid} className="border-b border-cdp-border last:border-0">
                   <td className="py-2.5 pr-2">
-                    <p className="font-semibold text-slate-800">{row.name}</p>
+                    <p className="font-semibold text-cdp-ink">{row.name}</p>
                     <PersonaChip persona={row.persona} />
                   </td>
                   <td className="py-2.5 pr-2">
@@ -74,20 +74,20 @@ export function RfmTable({ rows, state, dispatch }: { rows: RfmRow[]; state: App
                       {row.tier}
                     </span>
                   </td>
-                  <td className="py-2.5 pr-2 tabular-nums text-slate-500">
+                  <td className="py-2.5 pr-2 tabular-nums text-cdp-ink3">
                     {row.rScore}/{row.fScore}/{row.mScore}
                   </td>
-                  <td className="py-2.5 pr-2 font-semibold tabular-nums text-slate-700">{fmtBaht(row.monetary)}</td>
+                  <td className="py-2.5 pr-2 font-semibold tabular-nums text-cdp-ink2">{fmtBaht(row.monetary)}</td>
                   <td className="py-2.5">
                     {row.tier === "VIP" ? (
-                      <span className="text-[11px] text-slate-400">รักษาระดับ</span>
+                      <span className="text-[11px] text-cdp-ink3">รักษาระดับ</span>
                     ) : pending ? (
-                      <span className="text-[11px] text-slate-400">ส่งแล้ว / รออนุมัติ</span>
+                      <span className="text-[11px] text-cdp-ink3">ส่งแล้ว / รออนุมัติ</span>
                     ) : (
                       <button
                         type="button"
                         onClick={() => propose(row)}
-                        className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+                        className="inline-flex items-center gap-1 rounded-md bg-cdp-accent px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-sm transition-colors hover:bg-cdp-accent-strong"
                       >
                         <Send className="h-3.5 w-3.5" />
                         เสนอ {row.tier === "At-Risk" ? "Win-back" : "Bundle"}

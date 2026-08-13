@@ -20,22 +20,25 @@ export function KpiTile({
 }) {
   const toneClass =
     tone === "good"
-      ? "text-emerald-600"
+      ? "text-cdp-good"
       : tone === "warn"
-        ? "text-amber-600"
+        ? "text-cdp-warn"
         : tone === "bad"
-          ? "text-red-600"
-          : "text-slate-900";
+          ? "text-cdp-bad"
+          : "text-cdp-ink";
   return (
-    <Card className="p-3.5">
-      <div className="flex items-center gap-2 text-slate-400">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-50">{icon}</div>
+    <Card className="p-4">
+      <div className="flex items-center gap-2 text-cdp-ink3">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cdp-surface-2">{icon}</div>
         <p className="text-[11px] font-semibold uppercase tracking-wide">{label}</p>
       </div>
-      <p className={`mt-2 text-2xl font-bold tabular-nums ${toneClass}`} style={{ fontFamily: "var(--font-bricolage), var(--font-anuphan), sans-serif" }}>
+      <p
+        className={`mt-2.5 text-2xl font-bold tabular-nums ${toneClass}`}
+        style={{ fontFamily: "var(--font-bricolage), var(--font-anuphan), sans-serif" }}
+      >
         <CountUp value={value} format={format} />
       </p>
-      {hint ? <p className="mt-1 text-[11px] text-slate-400">{hint}</p> : null}
+      {hint ? <p className="mt-1.5 text-xs text-cdp-ink3">{hint}</p> : null}
     </Card>
   );
 }

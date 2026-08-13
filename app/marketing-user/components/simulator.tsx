@@ -201,10 +201,10 @@ export function Simulator({
                   step === "done"
                     ? "bg-emerald-50 text-emerald-600"
                     : i === stepIdx
-                      ? "bg-blue-600 text-white"
+                      ? "bg-cdp-accent text-white"
                       : i < stepIdx
-                        ? "bg-blue-50 text-blue-600"
-                        : "bg-slate-100 text-slate-400"
+                        ? "bg-cdp-accent-soft text-cdp-accent"
+                        : "bg-cdp-surface-2 text-cdp-ink3"
                 }`}
               >
                 {s.label}
@@ -217,7 +217,7 @@ export function Simulator({
       {/* Step 1 — pick a customer */}
       {step === "customer" ? (
         <Card className="p-4">
-          <p className="text-xs font-semibold text-slate-600">เลือกลูกค้าที่จะสวมบทบาท (dim_customers · 15 คน)</p>
+          <p className="text-xs font-semibold text-cdp-ink2">เลือกลูกค้าที่จะสวมบทบาท (dim_customers · 15 คน)</p>
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {CUSTOMERS.map((c) => {
               const coupon = state.couponOffers.includes(c.uid);
@@ -229,13 +229,13 @@ export function Simulator({
                     setCustomerUid(c.uid);
                     setStep("room");
                   }}
-                  className="group rounded-lg border border-slate-200 bg-white p-3 text-left transition-all hover:border-blue-400 hover:shadow-md"
+                  className="group rounded-lg border border-cdp-border bg-cdp-surface p-3 text-left transition-all hover:border-cdp-accent hover:shadow-md"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-bold text-slate-800">{c.name}</p>
-                    <ArrowRight className="h-3.5 w-3.5 text-slate-300 transition-colors group-hover:text-blue-600" />
+                    <p className="text-sm font-bold text-cdp-ink">{c.name}</p>
+                    <ArrowRight className="h-3.5 w-3.5 text-cdp-ink3 transition-colors group-hover:text-cdp-accent" />
                   </div>
-                  <p className="mt-0.5 text-[10px] text-slate-400">
+                  <p className="mt-0.5 text-[10px] text-cdp-ink3">
                     {c.occupation} · อายุ {c.age} · LINE UID {c.uid.slice(0, 6)}…
                   </p>
                   <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
@@ -257,18 +257,18 @@ export function Simulator({
       {step === "room" && customer ? (
         <Card className="p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs font-semibold text-slate-600">
-              จองห้องให้ <span className="text-blue-700">{customer.name}</span>{" "}
+            <p className="text-xs font-semibold text-cdp-ink2">
+              จองห้องให้ <span className="text-cdp-accent-strong">{customer.name}</span>{" "}
               {hasCoupon ? <span className="font-bold text-red-600">(คูปอง Win-Back -15% จะถูกใช้อัตโนมัติ)</span> : null}
             </p>
-            <button type="button" onClick={reset} className="text-[11px] font-medium text-slate-400 hover:text-slate-600">
+            <button type="button" onClick={reset} className="text-[11px] font-medium text-cdp-ink3 hover:text-cdp-ink2">
               ← เปลี่ยนลูกค้า
             </button>
           </div>
 
           <div className="mt-3 grid gap-3 lg:grid-cols-[1.2fr_1fr]">
             <div>
-              <p className="mb-1.5 text-[11px] font-semibold text-slate-500">เลือกห้อง (ราคา/ชม.)</p>
+              <p className="mb-1.5 text-[11px] font-semibold text-cdp-ink3">เลือกห้อง (ราคา/ชม.)</p>
               <div className="grid max-h-64 grid-cols-2 gap-1.5 overflow-y-auto pr-1 sm:grid-cols-3">
                 {ROOMS.map((r) => (
                   <button
@@ -277,12 +277,12 @@ export function Simulator({
                     onClick={() => setRoomId(r.id)}
                     className={`rounded-lg border p-2 text-left text-[11px] transition-colors ${
                       roomId === r.id
-                        ? "border-blue-500 bg-blue-50 ring-1 ring-blue-300"
-                        : "border-slate-200 bg-white hover:border-blue-300"
+                        ? "border-cdp-accent bg-cdp-accent-soft ring-1 ring-cdp-accent/30"
+                        : "border-cdp-border bg-cdp-surface hover:border-cdp-accent/50"
                     }`}
                   >
-                    <p className="font-bold text-slate-800">{r.name}</p>
-                    <p className="text-slate-400">
+                    <p className="font-bold text-cdp-ink">{r.name}</p>
+                    <p className="text-cdp-ink3">
                       {r.size === "small" ? "เล็ก" : r.size === "medium" ? "กลาง" : "ใหญ่"} · {fmtBaht(r.rate)}/ชม.
                     </p>
                   </button>
@@ -290,7 +290,7 @@ export function Simulator({
               </div>
             </div>
             <div>
-              <p className="mb-1.5 text-[11px] font-semibold text-slate-500">เลือกเวลาเริ่ม (วันนี้)</p>
+              <p className="mb-1.5 text-[11px] font-semibold text-cdp-ink3">เลือกเวลาเริ่ม (วันนี้)</p>
               <div className="grid grid-cols-4 gap-1.5">
                 {Array.from({ length: 16 }, (_, i) => i + 8).map((h) => {
                   const discounted = state.dynamicPricing && OFF_PEAK_HOURS.has(h);
@@ -301,10 +301,10 @@ export function Simulator({
                       onClick={() => setHour(h)}
                       className={`rounded-md border px-1 py-1.5 text-center text-[11px] font-semibold transition-colors ${
                         hour === h
-                          ? "border-blue-500 bg-blue-600 text-white"
+                          ? "border-cdp-accent bg-cdp-accent text-white"
                           : discounted
                             ? "border-emerald-300 bg-emerald-50 text-emerald-700 hover:border-emerald-400"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-blue-300"
+                            : "border-cdp-border bg-cdp-surface text-cdp-ink2 hover:border-cdp-accent/50"
                       }`}
                     >
                       {String(h).padStart(2, "0")}:00
@@ -313,7 +313,7 @@ export function Simulator({
                   );
                 })}
               </div>
-              <p className="mb-1.5 mt-3 text-[11px] font-semibold text-slate-500">ระยะเวลา</p>
+              <p className="mb-1.5 mt-3 text-[11px] font-semibold text-cdp-ink3">ระยะเวลา</p>
               <div className="flex gap-1.5">
                 {[1, 2, 3, 4].map((d) => (
                   <button
@@ -322,8 +322,8 @@ export function Simulator({
                     onClick={() => setDuration(d)}
                     className={`rounded-md border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
                       duration === d
-                        ? "border-blue-500 bg-blue-600 text-white"
-                        : "border-slate-200 bg-white text-slate-600 hover:border-blue-300"
+                        ? "border-cdp-accent bg-cdp-accent text-white"
+                        : "border-cdp-border bg-cdp-surface text-cdp-ink2 hover:border-cdp-accent/50"
                     }`}
                   >
                     {d} ชม.
@@ -332,8 +332,8 @@ export function Simulator({
               </div>
 
               {room && hour !== null ? (
-                <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
-                  <p className="flex justify-between text-slate-600">
+                <div className="mt-3 rounded-lg border border-cdp-border bg-cdp-surface-2 p-3 text-xs">
+                  <p className="flex justify-between text-cdp-ink2">
                     <span>
                       {room.name} · {String(hour).padStart(2, "0")}:00 · {duration} ชม.
                     </span>
@@ -355,13 +355,13 @@ export function Simulator({
                   <button
                     type="button"
                     onClick={tryConfirm}
-                    className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-md bg-blue-600 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-blue-700"
+                    className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-md bg-cdp-accent py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-cdp-accent-strong"
                   >
                     <CalendarCheck className="h-4 w-4" /> ยืนยันจอง + ชำระเงินรอบที่ 1
                   </button>
                 </div>
               ) : (
-                <p className="mt-3 text-[11px] text-slate-400">เลือกห้องและเวลาเริ่มเพื่อดูสรุปราคา</p>
+                <p className="mt-3 text-[11px] text-cdp-ink3">เลือกห้องและเวลาเริ่มเพื่อดูสรุปราคา</p>
               )}
             </div>
           </div>
@@ -375,41 +375,41 @@ export function Simulator({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-cdp-ink/40 p-4"
             onClick={() => confirmBooking(false)}
           >
             <motion.div
               initial={{ scale: 0.92, y: 12 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.92, y: 12 }}
-              className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-5 shadow-xl"
+              className="w-full max-w-sm rounded-xl border border-cdp-border bg-cdp-surface p-5 shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center gap-2 text-blue-600">
+              <div className="flex items-center gap-2 text-cdp-accent">
                 <Sparkles className="h-5 w-5" />
                 <p className="text-sm font-bold">ดีลพ่วงพิเศษสำหรับคุณ!</p>
               </div>
-              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+              <p className="mt-2 text-xs leading-relaxed text-cdp-ink2">
                 ลูกค้าที่จอง <b>{bundleOffer.roomType}</b> ช่วงเวลานี้มักสั่ง{" "}
                 <b>{BEV_BY_ID.get(bundleOffer.bevId)!.name}</b> — รับส่วนลดพ่วง <b className="text-red-600">15%</b>{" "}
                 เหลือ {fmtBaht(Math.round(BEV_BY_ID.get(bundleOffer.bevId)!.price * (1 - BUNDLE_DISCOUNT)))} (ปกติ{" "}
                 {fmtBaht(BEV_BY_ID.get(bundleOffer.bevId)!.price)})
               </p>
-              <p className="mt-1.5 text-[10px] text-slate-400">
+              <p className="mt-1.5 text-[10px] text-cdp-ink3">
                 จากกฎ Apriori: Lift {bundleOffer.lift.toFixed(1)} · Confidence {bundleOffer.confidence}%
               </p>
               <div className="mt-4 flex gap-2">
                 <button
                   type="button"
                   onClick={() => confirmBooking(true)}
-                  className="flex-1 rounded-md bg-blue-600 py-2 text-xs font-bold text-white hover:bg-blue-700"
+                  className="flex-1 rounded-md bg-cdp-accent py-2 text-xs font-bold text-white hover:bg-cdp-accent-strong"
                 >
                   รับดีลพ่วง +จองเลย
                 </button>
                 <button
                   type="button"
                   onClick={() => confirmBooking(false)}
-                  className="flex-1 rounded-md border border-slate-300 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                  className="flex-1 rounded-md border border-cdp-border-strong py-2 text-xs font-semibold text-cdp-ink2 hover:bg-cdp-surface-2"
                 >
                   ไม่รับ จองอย่างเดียว
                 </button>
@@ -423,11 +423,11 @@ export function Simulator({
       {step === "inroom" && booking && customer && room ? (
         <Card className="p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs font-semibold text-slate-600">
-              <span className="text-blue-700">{customer.name}</span> เช็กอินเข้า {room.name} แล้ว — สแกน QR ในห้องเพื่อสั่งเครื่องดื่ม
+            <p className="text-xs font-semibold text-cdp-ink2">
+              <span className="text-cdp-accent-strong">{customer.name}</span> เช็กอินเข้า {room.name} แล้ว — สแกน QR ในห้องเพื่อสั่งเครื่องดื่ม
               (จ่ายรอบเดียวตอนเช็กเอาต์ ฟีลตี๋น้อย)
             </p>
-            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold text-slate-500">
+            <span className="inline-flex items-center gap-1 rounded-full bg-cdp-surface-2 px-2.5 py-1 text-[10px] font-semibold text-cdp-ink3">
               <QrCode className="h-3.5 w-3.5" /> Booking {booking.bookingId}
             </span>
           </div>
@@ -451,33 +451,33 @@ export function Simulator({
                   <div
                     key={b.id}
                     className={`rounded-lg border p-2.5 ${
-                      line ? "border-blue-400 bg-blue-50/60" : "border-slate-200 bg-white"
+                      line ? "border-cdp-accent bg-cdp-accent-soft/60" : "border-cdp-border bg-cdp-surface"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-1">
-                      <p className="text-[11px] font-bold text-slate-800">{b.name}</p>
+                      <p className="text-[11px] font-bold text-cdp-ink">{b.name}</p>
                       {recommended ? (
                         <span className="rounded bg-amber-50 px-1 text-[9px] font-bold text-amber-600 ring-1 ring-amber-200">
                           แนะนำ
                         </span>
                       ) : null}
                     </div>
-                    <p className="text-[10px] text-slate-400">{fmtBaht(b.price)}</p>
+                    <p className="text-[10px] text-cdp-ink3">{fmtBaht(b.price)}</p>
                     <div className="mt-1.5 flex items-center gap-2">
                       <button
                         type="button"
                         aria-label={`ลด ${b.name}`}
                         onClick={() => addToCart(b.id, -1)}
-                        className="flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50"
+                        className="flex h-6 w-6 items-center justify-center rounded-md border border-cdp-border text-cdp-ink3 hover:bg-cdp-surface-2"
                       >
                         <Minus className="h-3 w-3" />
                       </button>
-                      <span className="w-4 text-center text-xs font-bold tabular-nums text-slate-700">{line?.qty ?? 0}</span>
+                      <span className="w-4 text-center text-xs font-bold tabular-nums text-cdp-ink2">{line?.qty ?? 0}</span>
                       <button
                         type="button"
                         aria-label={`เพิ่ม ${b.name}`}
                         onClick={() => addToCart(b.id, 1)}
-                        className="flex h-6 w-6 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100"
+                        className="flex h-6 w-6 items-center justify-center rounded-md border border-cdp-accent/20 bg-cdp-accent-soft text-cdp-accent hover:bg-cdp-accent-soft"
                       >
                         <Plus className="h-3 w-3" />
                       </button>
@@ -486,12 +486,12 @@ export function Simulator({
                 );
               })}
             </div>
-            <div className="flex flex-col rounded-lg border border-slate-200 bg-slate-50 p-3">
-              <p className="text-[11px] font-bold text-slate-600">บิลค่าน้ำสะสม (fact_billings)</p>
+            <div className="flex flex-col rounded-lg border border-cdp-border bg-cdp-surface-2 p-3">
+              <p className="text-[11px] font-bold text-cdp-ink2">บิลค่าน้ำสะสม (fact_billings)</p>
               {cart.length === 0 ? (
-                <p className="mt-2 flex-1 text-[11px] text-slate-400">ยังไม่มีออเดอร์ — กด + เพื่อสั่ง</p>
+                <p className="mt-2 flex-1 text-[11px] text-cdp-ink3">ยังไม่มีออเดอร์ — กด + เพื่อสั่ง</p>
               ) : (
-                <ul className="mt-2 flex-1 space-y-1 text-[11px] text-slate-600">
+                <ul className="mt-2 flex-1 space-y-1 text-[11px] text-cdp-ink2">
                   {cart.map((l) => {
                     const bev = BEV_BY_ID.get(l.bevId)!;
                     const isBundle = booking.bundleLine?.bevId === l.bevId;
@@ -513,7 +513,7 @@ export function Simulator({
                   })}
                 </ul>
               )}
-              <div className="mt-2 border-t border-slate-200 pt-2 text-xs font-bold text-slate-800">
+              <div className="mt-2 border-t border-cdp-border pt-2 text-xs font-bold text-cdp-ink">
                 <p className="flex justify-between">
                   <span>รวมรอบที่ 2</span>
                   <span className="tabular-nums">{fmtBaht(bevTotal)}</span>
@@ -522,7 +522,7 @@ export function Simulator({
               <button
                 type="button"
                 onClick={() => setStep("checkout")}
-                className="mt-3 flex items-center justify-center gap-1.5 rounded-md bg-slate-800 py-2 text-xs font-bold text-white hover:bg-slate-900"
+                className="mt-3 flex items-center justify-center gap-1.5 rounded-md bg-cdp-ink py-2 text-xs font-bold text-white hover:bg-cdp-ink/90"
               >
                 <DoorOpen className="h-4 w-4" /> ใช้งานเสร็จ → ไปเช็กเอาต์
               </button>
@@ -539,7 +539,7 @@ export function Simulator({
             title="เช็กเอาต์ — สรุปบิลรวม 2 รอบ"
             subtitle={`ผูกเข้า Customer ID เดียวกัน: ${customer.uid}`}
           />
-          <div className="mt-3 space-y-1.5 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+          <div className="mt-3 space-y-1.5 rounded-lg border border-cdp-border bg-cdp-surface-2 p-3 text-xs text-cdp-ink2">
             <p className="flex justify-between">
               <span>
                 รอบ 1 · ค่าห้อง {room.name} ({booking.duration} ชม.)
@@ -551,12 +551,12 @@ export function Simulator({
               <span>รอบ 2 · ค่าเครื่องดื่ม ({cart.reduce((s, l) => s + l.qty, 0)} รายการ)</span>
               <span className="font-semibold tabular-nums">{fmtBaht(bevTotal)}</span>
             </p>
-            <p className="flex justify-between border-t border-slate-200 pt-1.5 text-sm font-bold text-slate-900">
+            <p className="flex justify-between border-t border-cdp-border pt-1.5 text-sm font-bold text-cdp-ink">
               <span>ยอดรวมสุทธิ (AOV ต่อบิล)</span>
               <span className="tabular-nums">{fmtBaht(booking.roomAmount + bevTotal)}</span>
             </p>
           </div>
-          <p className="mt-4 text-[11px] font-semibold text-slate-500">ให้คะแนนความพึงพอใจ (CSAT)</p>
+          <p className="mt-4 text-[11px] font-semibold text-cdp-ink3">ให้คะแนนความพึงพอใจ (CSAT)</p>
           <div className="mt-1.5 flex gap-1">
             {[1, 2, 3, 4, 5].map((r) => (
               <button
@@ -568,7 +568,7 @@ export function Simulator({
               >
                 <Star
                   className={`h-6 w-6 transition-colors ${
-                    r <= rating ? "fill-amber-400 text-amber-400" : "text-slate-200"
+                    r <= rating ? "fill-amber-400 text-amber-400" : "text-cdp-border-strong"
                   }`}
                 />
               </button>
@@ -577,7 +577,7 @@ export function Simulator({
           <button
             type="button"
             onClick={checkout}
-            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-md bg-blue-600 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700"
+            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-md bg-cdp-accent py-2.5 text-xs font-bold text-white shadow-sm hover:bg-cdp-accent-strong"
           >
             <CheckCircle2 className="h-4 w-4" /> ชำระเงินรอบที่ 2 + เช็กเอาต์
           </button>
@@ -591,12 +591,12 @@ export function Simulator({
             <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
           </motion.div>
           <h3
-            className="mt-3 text-base font-bold text-slate-900"
+            className="mt-3 text-base font-bold text-cdp-ink"
             style={{ fontFamily: "var(--font-bricolage), var(--font-anuphan), sans-serif" }}
           >
             Journey ครบลูป — ข้อมูลเข้า CDP แล้ว
           </h3>
-          <p className="mt-2 text-xs leading-relaxed text-slate-500">
+          <p className="mt-2 text-xs leading-relaxed text-cdp-ink3">
             การจองของ {customer.name} (รอบ 1 {fmtBaht(booking.roomAmount)} + รอบ 2 {fmtBaht(bevTotal)}) ถูกผูกเข้า
             LINE UID เดียวกันและอัปเดต KPIs, Goal Progress, Heatmap และ Activity Log บนแดชบอร์ดเรียบร้อย
           </p>
@@ -604,14 +604,14 @@ export function Simulator({
             <button
               type="button"
               onClick={onGoDashboard}
-              className="flex-1 rounded-md bg-blue-600 py-2 text-xs font-bold text-white hover:bg-blue-700"
+              className="flex-1 rounded-md bg-cdp-accent py-2 text-xs font-bold text-white hover:bg-cdp-accent-strong"
             >
               ดูผลบนแดชบอร์ด →
             </button>
             <button
               type="button"
               onClick={reset}
-              className="flex-1 rounded-md border border-slate-300 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+              className="flex-1 rounded-md border border-cdp-border-strong py-2 text-xs font-semibold text-cdp-ink2 hover:bg-cdp-surface-2"
             >
               จำลองลูกค้าคนถัดไป
             </button>

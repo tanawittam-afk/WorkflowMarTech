@@ -44,7 +44,7 @@ export function AnalyticsLadder({ reg, scenario }: { reg: RegressionResult; scen
   return (
     <Card className="p-4">
       <SectionHeader
-        icon={<TrendingUp className="h-4 w-4 text-blue-600" />}
+        icon={<TrendingUp className="h-4 w-4 text-cdp-accent" />}
         title="Data Analytics 4 ระดับ"
         subtitle="จากข้อมูลดิบ สู่คำแนะนำที่ลงมือทำได้"
       />
@@ -52,16 +52,16 @@ export function AnalyticsLadder({ reg, scenario }: { reg: RegressionResult; scen
         {steps.map((step, idx) => {
           const Icon = step.icon;
           return (
-            <div key={step.label} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[9px] font-bold text-white">
+            <div key={step.label} className="rounded-lg border border-cdp-border bg-cdp-surface-2/60 p-3">
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-cdp-ink3">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-cdp-accent text-[9px] font-bold text-white">
                   {idx + 1}
                 </span>
                 <Icon className="h-3 w-3" />
                 {step.label}
               </div>
-              <p className="mt-1.5 text-[11px] text-slate-400">{step.question}</p>
-              <p className="mt-0.5 text-xs font-medium text-slate-800">{step.answer}</p>
+              <p className="mt-1.5 text-[11px] text-cdp-ink3">{step.question}</p>
+              <p className="mt-0.5 text-xs font-medium text-cdp-ink">{step.answer}</p>
             </div>
           );
         })}

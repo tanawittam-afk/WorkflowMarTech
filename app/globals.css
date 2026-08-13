@@ -178,6 +178,56 @@
   --shadow-e2: var(--e-2);
   --shadow-e3: var(--e-3);
   --shadow-glow: var(--glow);
+
+  /* CDP Dashboard (/marketing-user) — warm light tokens, scoped by the
+     `cdp-*` prefix so they never collide with the tokens above. Defined
+     here rather than a separate imported stylesheet because Tailwind v4
+     only generates utility classes for `@theme` blocks that live in the
+     same build graph as this file's `@import "tailwindcss"` entry point. */
+  --color-cdp-bg: var(--cdp-bg);
+  --color-cdp-surface: var(--cdp-surface);
+  --color-cdp-surface-2: var(--cdp-surface-2);
+  --color-cdp-border: var(--cdp-border);
+  --color-cdp-border-strong: var(--cdp-border-strong);
+  --color-cdp-ink: var(--cdp-ink);
+  --color-cdp-ink2: var(--cdp-ink2);
+  --color-cdp-ink3: var(--cdp-ink3);
+  --color-cdp-accent: var(--cdp-accent);
+  --color-cdp-accent-strong: var(--cdp-accent-strong);
+  --color-cdp-accent-soft: var(--cdp-accent-soft);
+  --color-cdp-on-accent: var(--cdp-on-accent);
+  --color-cdp-good: var(--cdp-good);
+  --color-cdp-good-soft: var(--cdp-good-soft);
+  --color-cdp-warn: var(--cdp-warn);
+  --color-cdp-warn-soft: var(--cdp-warn-soft);
+  --color-cdp-bad: var(--cdp-bad);
+  --color-cdp-bad-soft: var(--cdp-bad-soft);
+}
+
+:root {
+  --cdp-bg: #faf9f7;
+  --cdp-surface: #ffffff;
+  --cdp-surface-2: #f5f4f1;
+  --cdp-border: #e7e5e1;
+  --cdp-border-strong: #d9d6d1;
+
+  --cdp-ink: #1c1917;
+  --cdp-ink2: #57534e;
+  --cdp-ink3: #a29e97;
+
+  --cdp-accent: #4f46e5;
+  --cdp-accent-strong: #4338ca;
+  --cdp-accent-soft: #eef2ff;
+  --cdp-on-accent: #ffffff;
+
+  --cdp-good: #059669;
+  --cdp-good-soft: #ecfdf5;
+  --cdp-warn: #d97706;
+  --cdp-warn-soft: #fffbeb;
+  --cdp-bad: #dc2626;
+  --cdp-bad-soft: #fef2f2;
+
+  --cdp-shadow-card: 0 1px 2px rgba(28, 25, 23, 0.04), 0 2px 8px rgba(28, 25, 23, 0.05);
 }
 
 body {

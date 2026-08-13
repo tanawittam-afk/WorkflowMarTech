@@ -26,16 +26,16 @@ export function BundlePanel({ state, dispatch }: { state: AppState; dispatch: Re
             <div
               key={rule.id}
               className={`rounded-lg border p-3 transition-colors ${
-                active ? "border-emerald-300 bg-emerald-50/60" : "border-slate-200 bg-slate-50/60"
+                active ? "border-emerald-300 bg-emerald-50/60" : "border-cdp-border bg-cdp-surface-2/60"
               }`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-bold text-slate-800">
+                  <p className="text-xs font-bold text-cdp-ink">
                     {rule.roomType} ({String(rule.hourFrom).padStart(2, "0")}:00–{String(rule.hourTo).padStart(2, "0")}:00) + {bev.name}
                   </p>
-                  <p className="mt-0.5 text-[11px] leading-snug text-slate-500">{rule.pitch}</p>
-                  <p className="mt-1 text-[10px] font-semibold text-slate-400">
+                  <p className="mt-0.5 text-[11px] leading-snug text-cdp-ink3">{rule.pitch}</p>
+                  <p className="mt-1 text-[10px] font-semibold text-cdp-ink3">
                     Lift <span className="text-amber-600">{rule.lift.toFixed(1)}</span> · Confidence{" "}
                     <span className="text-amber-600">{rule.confidence}%</span> · ส่วนลดพ่วง -15%
                   </p>
@@ -67,7 +67,7 @@ export function BundlePanel({ state, dispatch }: { state: AppState; dispatch: Re
                   className={`shrink-0 rounded-md px-2.5 py-1.5 text-[11px] font-semibold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${
                     active
                       ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : "bg-blue-600 text-white hover:bg-blue-700"
+                      : "bg-cdp-accent text-white hover:bg-cdp-accent-strong"
                   }`}
                 >
                   {active ? (
@@ -87,7 +87,7 @@ export function BundlePanel({ state, dispatch }: { state: AppState; dispatch: Re
           );
         })}
       </div>
-      <div className="mt-3 flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2 text-[11px] text-blue-800">
+      <div className="mt-3 flex items-start gap-2 rounded-lg border border-cdp-accent/15 bg-cdp-accent-soft/60 px-3 py-2 text-[11px] text-cdp-accent-strong">
         <Bell className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         <p>
           Trigger อัตโนมัติในห้อง: ใช้งานเกิน 2 ชม. แต่ยังไม่มีบิลค่าน้ำ → ระบบยิงคูปองกาแฟ -20% เข้า LINE OA

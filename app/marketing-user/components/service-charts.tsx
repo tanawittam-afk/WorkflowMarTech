@@ -41,7 +41,7 @@ export function ServiceCharts({ m }: { m: Metrics }) {
               <PieChart>
                 <Pie data={m.pieData} dataKey="value" nameKey="name" innerRadius={38} outerRadius={62} paddingAngle={3} strokeWidth={0}>
                   {m.pieData.map((d) => (
-                    <Cell key={d.name} fill={PIE_COLORS[d.name] ?? "#94a3b8"} />
+                    <Cell key={d.name} fill={PIE_COLORS[d.name] ?? "#a29e97"} />
                   ))}
                 </Pie>
                 <Tooltip
@@ -53,14 +53,14 @@ export function ServiceCharts({ m }: { m: Metrics }) {
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <ul className="space-y-1 text-[11px] text-slate-600">
+          <ul className="space-y-1 text-[11px] text-cdp-ink2">
             {m.pieData.map((d) => (
               <li key={d.name} className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PIE_COLORS[d.name] ?? "#94a3b8" }} />
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PIE_COLORS[d.name] ?? "#a29e97" }} />
                   {d.name}
                 </span>
-                <span className="font-semibold text-slate-800">
+                <span className="font-semibold text-cdp-ink">
                   {totalPie ? Math.round((d.value / totalPie) * 100) : 0}%
                 </span>
               </li>
@@ -68,17 +68,17 @@ export function ServiceCharts({ m }: { m: Metrics }) {
           </ul>
         </div>
         <div className="flex flex-col">
-          <p className="mb-1 text-[11px] font-semibold text-slate-500">เครื่องดื่มขายดี (แก้ว/30 วัน)</p>
+          <p className="mb-1 text-[11px] font-semibold text-cdp-ink3">เครื่องดื่มขายดี (แก้ว/30 วัน)</p>
           <div className="min-h-44 flex-1">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={m.barData} layout="vertical" margin={{ left: 0, right: 8, top: 4, bottom: 0 }}>
-                <CartesianGrid horizontal={false} stroke="#e2e8f0" />
-                <XAxis type="number" tick={{ fontSize: 10, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <CartesianGrid horizontal={false} stroke="#e7e5e1" />
+                <XAxis type="number" tick={{ fontSize: 10, fill: "#57534e" }} axisLine={false} tickLine={false} />
                 <YAxis
                   type="category"
                   dataKey="name"
                   width={104}
-                  tick={{ fontSize: 10, fill: "#334155" }}
+                  tick={{ fontSize: 10, fill: "#1c1917" }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -97,7 +97,7 @@ export function ServiceCharts({ m }: { m: Metrics }) {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <p className="mt-1 text-[10px] text-slate-400">
+          <p className="mt-1 text-[10px] text-cdp-ink3">
             สี = Persona หลักที่สั่ง: ฟ้า นักศึกษา · ม่วง คนทำงาน · ส้ม ครีเอเตอร์
           </p>
         </div>

@@ -32,10 +32,10 @@ export function ForecastChart({ reg }: { reg: RegressionResult }) {
       <div className="mt-2 h-56 w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-            <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e1" vertical={false} />
+            <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#a29e97" }} axisLine={false} tickLine={false} />
             <YAxis
-              tick={{ fontSize: 10, fill: "#94a3b8" }}
+              tick={{ fontSize: 10, fill: "#a29e97" }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v: number) => `${v}%`}
@@ -43,19 +43,19 @@ export function ForecastChart({ reg }: { reg: RegressionResult }) {
             />
             <ReferenceLine
               y={SALES_GROWTH_TARGET_PCT}
-              stroke="#16a34a"
+              stroke="#059669"
               strokeDasharray="4 4"
-              label={{ value: `เป้า +${SALES_GROWTH_TARGET_PCT}%`, position: "right", fontSize: 10, fill: "#16a34a" }}
+              label={{ value: `เป้า +${SALES_GROWTH_TARGET_PCT}%`, position: "right", fontSize: 10, fill: "#059669" }}
             />
             <Tooltip
               formatter={(v) => [`${Number(v).toFixed(1)}%`, ""]}
-              contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e2e8f0" }}
+              contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e7e5e1" }}
             />
-            <Line type="monotone" dataKey="actual" stroke="#2563eb" strokeWidth={2.5} dot={{ r: 3 }} connectNulls name="Actual" />
+            <Line type="monotone" dataKey="actual" stroke="#4f46e5" strokeWidth={2.5} dot={{ r: 3 }} connectNulls name="Actual" />
             <Line
               type="monotone"
               dataKey="forecast"
-              stroke="#2563eb"
+              stroke="#4f46e5"
               strokeWidth={2}
               strokeDasharray="5 4"
               dot={{ r: 3 }}
@@ -65,15 +65,15 @@ export function ForecastChart({ reg }: { reg: RegressionResult }) {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-1 flex items-center gap-4 text-[10px] text-slate-500">
+      <div className="mt-1 flex items-center gap-4 text-[10px] text-cdp-ink3">
         <span className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4 rounded bg-blue-600" /> Actual
+          <span className="h-0.5 w-4 rounded bg-cdp-accent" /> Actual
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4 rounded border-t-2 border-dashed border-blue-600" /> Forecast
+          <span className="h-0.5 w-4 rounded border-t-2 border-dashed border-cdp-accent" /> Forecast
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4 rounded border-t-2 border-dashed border-emerald-600" /> Target +{SALES_GROWTH_TARGET_PCT}%
+          <span className="h-0.5 w-4 rounded border-t-2 border-dashed border-cdp-good" /> Target +{SALES_GROWTH_TARGET_PCT}%
         </span>
       </div>
     </Card>

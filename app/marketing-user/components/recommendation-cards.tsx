@@ -22,19 +22,19 @@ export function RecommendationCards({ state }: { state: AppState }) {
           const recs: Recommendation[] = recommendFor({ persona }, state, 2);
           const meta = PERSONA_META[persona];
           return (
-            <div key={persona} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+            <div key={persona} className="rounded-lg border border-cdp-border bg-cdp-surface-2/60 p-3">
               <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${meta.chip}`}>
                 <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: meta.dot }} />
                 {meta.label}
               </span>
               <div className="mt-2 space-y-2">
                 {recs.map((r) => (
-                  <div key={r.bevId} className="rounded-md bg-white p-2 ring-1 ring-slate-200">
+                  <div key={r.bevId} className="rounded-md bg-cdp-surface p-2 ring-1 ring-slate-200">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-semibold text-slate-800">{r.name}</p>
-                      <p className="text-xs font-semibold tabular-nums text-slate-500">{fmtBaht(r.price)}</p>
+                      <p className="text-xs font-semibold text-cdp-ink">{r.name}</p>
+                      <p className="text-xs font-semibold tabular-nums text-cdp-ink3">{fmtBaht(r.price)}</p>
                     </div>
-                    <p className="mt-0.5 text-[10px] leading-snug text-slate-400">{r.reason}</p>
+                    <p className="mt-0.5 text-[10px] leading-snug text-cdp-ink3">{r.reason}</p>
                   </div>
                 ))}
               </div>

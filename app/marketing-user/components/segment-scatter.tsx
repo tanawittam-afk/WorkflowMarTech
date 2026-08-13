@@ -26,12 +26,12 @@ export function SegmentScatter({ rows }: { rows: RfmRow[] }) {
       <div className="mt-2 h-56 w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
-            <CartesianGrid stroke="#e2e8f0" />
+            <CartesianGrid stroke="#e7e5e1" />
             <XAxis
               type="number"
               dataKey="x"
               name="Frequency (90 วัน)"
-              tick={{ fontSize: 10, fill: "#94a3b8" }}
+              tick={{ fontSize: 10, fill: "#a29e97" }}
               axisLine={false}
               tickLine={false}
             />
@@ -39,7 +39,7 @@ export function SegmentScatter({ rows }: { rows: RfmRow[] }) {
               type="number"
               dataKey="y"
               name="Monetary"
-              tick={{ fontSize: 10, fill: "#94a3b8" }}
+              tick={{ fontSize: 10, fill: "#a29e97" }}
               axisLine={false}
               tickLine={false}
               width={40}
@@ -52,7 +52,7 @@ export function SegmentScatter({ rows }: { rows: RfmRow[] }) {
                 key === "x" ? "Frequency" : "Monetary",
               ]}
               labelFormatter={() => ""}
-              contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e2e8f0" }}
+              contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e7e5e1" }}
             />
             {(["student", "pro", "creator"] as const).map((persona) => (
               <Scatter
@@ -65,7 +65,7 @@ export function SegmentScatter({ rows }: { rows: RfmRow[] }) {
           </ScatterChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-1 flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
+      <div className="mt-1 flex flex-wrap items-center gap-3 text-[10px] text-cdp-ink3">
         {(["student", "pro", "creator"] as const).map((persona) => (
           <span key={persona} className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PERSONA_META[persona].dot }} />
