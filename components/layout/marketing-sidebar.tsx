@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   CalendarDays,
-  LayoutDashboard,
   LineChart,
   LogOut,
   Users,
@@ -17,12 +16,11 @@ import { useBookingStore } from "@/lib/store/booking-store";
 import { ResetDemoButton } from "@/components/layout/reset-demo-button";
 
 export const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/marketing-user", label: "Dashboard", icon: LineChart },
   { href: "/analytics", label: "Analytics & Statistics", icon: BarChart3 },
   { href: "/customers", label: "Customers", icon: Users },
   { href: "/bookings", label: "Bookings", icon: CalendarDays },
   { href: "/martech", label: "Marketing Workflow", icon: Workflow },
-  { href: "/marketing-user", label: "CDP Dashboard", icon: LineChart },
 ];
 
 export function MarketingSidebar() {

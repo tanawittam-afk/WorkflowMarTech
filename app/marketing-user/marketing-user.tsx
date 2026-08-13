@@ -33,6 +33,7 @@ import {
   GlassWater,
   LayoutDashboard,
   MonitorSmartphone,
+  Radio,
   ThermometerSun,
   Users,
 } from "lucide-react";
@@ -45,15 +46,17 @@ import { Simulator } from "./components/simulator";
 import { BeverageCampaign } from "./pages/beverage-campaign";
 import { CustomerLoyalty } from "./pages/customer-loyalty";
 import { ExecutiveOverview } from "./pages/executive-overview";
+import { LiveOps } from "./pages/live-ops";
 import { SpaceRevenue } from "./pages/space-revenue";
 
-type View = "exec" | "space" | "customer" | "beverage" | "sim";
+type View = "exec" | "space" | "customer" | "beverage" | "live" | "sim";
 
 const NAV: Array<{ id: View; label: string; icon: React.ReactNode }> = [
   { id: "exec", label: "ภาพรวมผู้บริหาร", icon: <LayoutDashboard className="h-4 w-4" /> },
   { id: "space", label: "พื้นที่และรายได้", icon: <ThermometerSun className="h-4 w-4" /> },
   { id: "customer", label: "ลูกค้าและความภักดี", icon: <Users className="h-4 w-4" /> },
   { id: "beverage", label: "เครื่องดื่มและแคมเปญ", icon: <Coffee className="h-4 w-4" /> },
+  { id: "live", label: "ข้อมูลจริงจากแอป", icon: <Radio className="h-4 w-4" /> },
 ];
 
 export default function MarketingUser({ fontClass }: { fontClass: string }) {
@@ -167,6 +170,8 @@ export default function MarketingUser({ fontClass }: { fontClass: string }) {
               <CustomerLoyalty state={state} m={m} dispatch={dispatch} />
             ) : view === "beverage" ? (
               <BeverageCampaign state={state} m={m} dispatch={dispatch} />
+            ) : view === "live" ? (
+              <LiveOps />
             ) : (
               <Simulator state={state} dispatch={dispatch} onGoDashboard={() => setView("exec")} />
             )}

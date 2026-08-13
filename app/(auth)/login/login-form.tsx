@@ -73,13 +73,13 @@ export function LoginForm() {
 
           <TabsContent value="marketing" className="flex flex-col gap-4">
             <p className="text-sm text-ink2">
-              Sign in to view the Operations Dashboard and Analytics & Statistics.
+              Sign in to view the CDP Dashboard and Analytics & Statistics.
             </p>
             <Button
               className="w-full"
               onClick={() => {
                 loginAsMarketing();
-                router.push("/dashboard");
+                router.push("/marketing-user");
               }}
             >
               Sign in as Marketing Staff

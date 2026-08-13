@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Anuphan } from "next/font/google";
+
+import { RoleGuard } from "@/components/layout/role-guard";
+
 import MarketingUser from "./marketing-user";
 
 // Thai-capable sans for this route only — Bricolage/Inter (loaded in the root
@@ -18,5 +21,9 @@ export const metadata: Metadata = {
 };
 
 export default function MarketingUserPage() {
-  return <MarketingUser fontClass={anuphan.variable} />;
+  return (
+    <RoleGuard requiredRole="marketing">
+      <MarketingUser fontClass={anuphan.variable} />
+    </RoleGuard>
+  );
 }

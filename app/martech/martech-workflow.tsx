@@ -898,7 +898,7 @@ function Hero() {
               <ArrowDown className="h-4 w-4" aria-hidden="true" />
             </button>
             <Link
-              href="/dashboard"
+              href="/marketing-user"
               className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >
               {t(HERO.ctaSecondary)}

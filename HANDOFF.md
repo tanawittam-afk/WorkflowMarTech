@@ -1,6 +1,26 @@
 # BookingWeb — HANDOFF
 
-_Last updated: 2026-08-13 (resolved the 3-way "Marketing Dashboard" duplication + adopted new BriefMartech PDFs — build/lint/typecheck clean, CDP-verified)_
+_Last updated: 2026-08-13 (retired `/dashboard`, merged its live-data widgets into `/marketing-user` as a new Live Ops page — build/lint/typecheck clean, CDP-verified)_
+
+## ✅ Retired `/dashboard`, merged into `/marketing-user` (2026-08-13, same day, later pass)
+
+Follow-up to the pass below: owner asked whether the "Operations Dashboard" (`/dashboard`, real live data) was still pulling its weight given every CDP marketing *action* already requires clicking through the "รออนุมัติ" approval drawer. Investigated and confirmed real visual overlap (both had an occupancy heatmap, both showed customer/CSAT-shaped metrics) despite different data sources (`/dashboard` = real zustand store; `/marketing-user` = seeded mock engine calibrated to Proposal_V2's worked example, +8.2% actual → +10% forecast).
+
+**Owner decisions (locked):** (1) delete `/dashboard` entirely; (2) its unique value — real live-app data — moves into a new **"ข้อมูลจริงจากแอป" (Live Ops)** page inside `/marketing-user`, a 6th nav item alongside the 4 CDP pages + Simulator; (3) the CDP's core analytics (`lib/analytics-v2.ts`, `lib/scenarios.ts`, `lib/domain.ts`, `lib/history.ts` — the calibrated regression) are **untouched**, only Live Ops reads the real store; (4) `/marketing-user` now requires the Marketing Staff login (same gate `/dashboard` used to have), since it shows real customer/booking data.
+
+**Changes:**
+- New `app/marketing-user/pages/live-ops.tsx` — reads the real `useBookingStore` (customers/bookings/zones/rooms/reviews/notifications/orders), reuses `computeDashboardMetrics` from `@/lib/analytics/dashboard-metrics` and the `components/dashboard/*` widgets (`MetricCard`, `OccupancyHeatmap`, `ZonePieChart`, `ConversionLineChart`, `SentimentTopicSummary`) **as-is, unskinned** — their dark-glass tokens read visually distinct from the CDP shell's light blue/white cards, deliberately signaling "this section is live, not simulated," same idea as the Simulator tab's context switch
+- `app/marketing-user/marketing-user.tsx` — `View` union gained `"live"`; `NAV` gained a 6th entry wired to `<LiveOps />`
+- `app/marketing-user/page.tsx` — wrapped `<MarketingUser>` in `<RoleGuard requiredRole="marketing">` (reused from `@/components/layout/role-guard`, the same guard `(marketing)/layout.tsx` uses — **not** the full layout with `MarketingSidebar`, since `/marketing-user` keeps its own custom top-nav shell)
+- Deleted `app/(marketing)/dashboard/` entirely (route now 404s)
+- `components/layout/marketing-sidebar.tsx` — removed the old `/dashboard` entry; renamed the `/marketing-user` entry from "CDP Dashboard" to "Dashboard" (now the only one)
+- `app/(auth)/login/login-form.tsx` — Marketing Staff sign-in now `router.push("/marketing-user")` (was `/dashboard`); blurb copy updated
+- `app/martech/martech-workflow.tsx` — hero secondary CTA (`HERO.ctaSecondary`, "Open live dashboard") now links to `/marketing-user`
+
+### Verified
+`npm run lint` clean · `npx tsc --noEmit` clean (after a clean `.next` rebuild — stale generated route types referenced the deleted page) · `npm run build` passes, **14 routes** (was 15). CDP-driven: clearing the session and visiting `/marketing-user` redirects to `/login`; signing in as Marketing Staff lands on `/marketing-user` directly; the new Live Ops tab renders real data (Total Customers, CSAT, occupancy heatmap, LINE OA conversion, sentiment/topic cloud) distinct in style from the CDP pages; sidebar's single "Dashboard" entry navigates correctly from `/analytics`; `/dashboard` 404s; CDP hero numbers unchanged (+8.2% actual / 10.0% forecast) confirming the mock engine/calibration was not touched.
+
+---
 
 ## ✅ Resolved duplicate Marketing Dashboards + adopted new BriefMartech PDFs (2026-08-13)
 
