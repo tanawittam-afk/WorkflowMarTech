@@ -205,16 +205,16 @@ const KPIS: {
   },
   {
     label: { en: "Ingestion Touchpoints", th: "จุดนำเข้าข้อมูล" },
-    value: 3,
+    value: 5,
     format: (v: number) => `${Math.round(v)}`,
-    delta: { en: "LINE · Web · In-room QR", th: "LINE · เว็บ · QR ในห้อง" },
+    delta: { en: "LINE · Web · QR · POS · CSAT", th: "LINE · เว็บ · QR · POS · CSAT" },
     icon: Inbox,
   },
   {
-    label: { en: "Analytics Models", th: "โมเดลวิเคราะห์" },
-    value: 3,
+    label: { en: "Analytics Techniques", th: "เทคนิควิเคราะห์" },
+    value: 6,
     format: (v: number) => `${Math.round(v)}`,
-    delta: { en: "K-Means · Apriori · Forecast", th: "K-Means · Apriori · Forecast" },
+    delta: { en: "Regression · K-Means · Apriori · +3 more", th: "Regression · K-Means · Apriori · อีก 3" },
     icon: Brain,
   },
   {
@@ -257,28 +257,30 @@ const PHASES: Phase[] = [
     shortName: { en: "Ingestion", th: "นำเข้าข้อมูล" },
     icon: Inbox,
     tagline: {
-      en: "Three touchpoints feed the CDP — all stitched by one LINE UID.",
-      th: "3 จุดนำเข้าข้อมูลป้อนเข้า CDP เชื่อมกันด้วย LINE UID เดียว",
+      en: "Five touchpoints feed the CDP — all stitched by one LINE UID.",
+      th: "5 จุดนำเข้าข้อมูลป้อนเข้า CDP เชื่อมกันด้วย LINE UID เดียว",
     },
     groups: [
       {
-        label: { en: "3 Touchpoints", th: "3 จุดนำเข้าข้อมูล" },
+        label: { en: "5 Touchpoints", th: "5 จุดนำเข้าข้อมูล" },
         flow: true,
         items: [
           { en: "1 · LINE registration", th: "1 · สมัครสมาชิกผ่าน LINE" },
           { en: "2 · Room booking on web", th: "2 · จองห้องผ่านเว็บ" },
           { en: "3 · In-room QR beverage order", th: "3 · สั่งน้ำผ่าน QR ในห้อง" },
+          { en: "4 · Payment / POS billing", th: "4 · ชำระเงินผ่าน Payment/POS" },
+          { en: "5 · Campaign response & CSAT", th: "5 · ตอบสนองแคมเปญและ CSAT" },
         ],
       },
       {
         label: { en: "Tables Written", th: "ตารางที่เขียนลง" },
-        items: ["dim_customers", "fact_bookings", "fact_billings"],
+        items: ["dim_customers", "fact_bookings", "fact_billings", "fact_campaign_response", "fact_csat"],
       },
       {
         label: { en: "Join Key", th: "ตัวเชื่อมข้อมูล" },
         items: [
           { en: "Customer ID (LINE UID)", th: "Customer ID (LINE UID)" },
-          { en: "Seamless across all three", th: "เชื่อมทั้งสามตารางแบบไร้รอยต่อ" },
+          { en: "Seamless across all five", th: "เชื่อมทั้งห้าตารางแบบไร้รอยต่อ" },
         ],
       },
     ],
@@ -316,7 +318,7 @@ const PHASES: Phase[] = [
       {
         label: { en: "Feeds", th: "ส่งต่อไปยัง" },
         items: [
-          { en: "K-Means · Apriori · Forecasting", th: "K-Means · Apriori · Forecasting" },
+          { en: "6 analytics techniques (Model 1-6)", th: "6 เทคนิควิเคราะห์ (โมเดล 1-6)" },
         ],
       },
     ],
@@ -328,8 +330,8 @@ const PHASES: Phase[] = [
     shortName: { en: "Analytics", th: "โมเดลวิเคราะห์" },
     icon: Brain,
     tagline: {
-      en: "Three models turn the cleaned dataset into personas, bundles, and forecasts.",
-      th: "3 โมเดลเปลี่ยนข้อมูลที่สะอาดแล้วเป็น Persona, เซ็ตคู่ และการพยากรณ์",
+      en: "Six techniques turn the cleaned dataset into personas, bundles, forecasts, and next-best actions.",
+      th: "6 เทคนิคเปลี่ยนข้อมูลที่สะอาดแล้วเป็น Persona, เซ็ตคู่, การพยากรณ์ และคำแนะนำ",
     },
     groups: [
       {
@@ -351,6 +353,27 @@ const PHASES: Phase[] = [
         items: [
           { en: "In: historical booking_datetime", th: "เข้า: ประวัติ booking_datetime ย้อนหลัง" },
           { en: "Out: peak vs off-peak demand forecast", th: "ออก: พยากรณ์ Demand แยกช่วง Peak / Off-Peak" },
+        ],
+      },
+      {
+        label: { en: "Model 4 · Multiple Regression", th: "โมเดล 4 · Multiple Regression" },
+        items: [
+          { en: "In: total sales, duration, price, segment, campaign response", th: "เข้า: ยอดขายรวม, ระยะเวลา, ราคา, กลุ่มลูกค้า, ผลตอบรับแคมเปญ" },
+          { en: "Out: Sales Forecast, Sales Gap, factor contribution", th: "ออก: Sales Forecast, Sales Gap, สัดส่วนปัจจัยขับเคลื่อน" },
+        ],
+      },
+      {
+        label: { en: "Model 5 · RFM Analysis", th: "โมเดล 5 · RFM Analysis" },
+        items: [
+          { en: "In: recency, frequency, monetary per customer", th: "เข้า: ความถี่ล่าสุด, ความถี่, ยอดเงินสะสมต่อคน" },
+          { en: "Out: VIP / Loyal / Potential / At-Risk tiers", th: "ออก: กลุ่ม VIP / Loyal / Potential / At-Risk" },
+        ],
+      },
+      {
+        label: { en: "Model 6 · Recommendation System", th: "โมเดล 6 · Recommendation System" },
+        items: [
+          { en: "In: past orders, persona, current room/time", th: "เข้า: ประวัติสั่งซื้อ, Persona, ห้อง/เวลาปัจจุบัน" },
+          { en: "Out: personalised beverage or bundle offer", th: "ออก: ข้อเสนอเครื่องดื่มหรือเซ็ตคู่เฉพาะบุคคล" },
         ],
       },
     ],
@@ -383,9 +406,9 @@ const PHASES: Phase[] = [
       {
         label: { en: "Driven By", th: "ขับเคลื่อนโดย" },
         items: [
-          { en: "Apriori ⇒ bundles", th: "Apriori ⇒ เซ็ตคู่" },
+          { en: "Apriori + Recommendation ⇒ bundles", th: "Apriori + Recommendation ⇒ เซ็ตคู่" },
           { en: "Forecasting ⇒ pricing", th: "Forecasting ⇒ ราคา" },
-          { en: "K-Means ⇒ targeting", th: "K-Means ⇒ เลือกกลุ่มเป้าหมาย" },
+          { en: "K-Means + RFM ⇒ targeting", th: "K-Means + RFM ⇒ เลือกกลุ่มเป้าหมาย" },
         ],
       },
     ],
@@ -400,23 +423,22 @@ const PHASES: Phase[] = [
     shortName: { en: "Measure", th: "วัดผล" },
     icon: Repeat,
     tagline: {
-      en: "Results are scored against three objectives, then retrain the models.",
-      th: "วัดผลกับวัตถุประสงค์ 3 ข้อ แล้วป้อนกลับไปเทรนโมเดลรอบถัดไป",
+      en: "Results are scored against one Main KPI, then retrain the models.",
+      th: "วัดผลกับ Main KPI เดียว แล้วป้อนกลับไปเทรนโมเดลรอบถัดไป",
     },
     groups: [
       {
-        label: { en: "3 Objectives (6 months)", th: "วัตถุประสงค์ 3 ข้อ (ใน 6 เดือน)" },
+        label: { en: "Main KPI (6 months)", th: "Main KPI (ใน 6 เดือน)" },
         items: [
-          { en: "1 · Room revenue +15%", th: "1 · ยอดขายจากการจองห้อง +15%" },
-          { en: "2 · Beverage attach rate → 40%", th: "2 · Beverage Attach Rate → 40%" },
-          { en: "3 · Combined AOV +15%", th: "3 · AOV รวม (ห้อง+น้ำ) +15%" },
+          { en: "Total Sales Growth (Room + Beverage) ≥ +15%", th: "Total Sales Growth (ห้อง + เครื่องดื่ม) ≥ +15%" },
+          { en: "Driven by Room Revenue, Beverage Attach Rate, Combined AOV, Repeat Booking", th: "ขับเคลื่อนโดย Room Revenue, Beverage Attach Rate, Combined AOV, Repeat Booking" },
         ],
       },
       {
         label: { en: "Tracked On", th: "ติดตามผลที่" },
         items: [
-          { en: "Goal progress bars on the dashboard", th: "แถบความคืบหน้าเป้าหมายบนแดชบอร์ด" },
-          { en: "8 core KPIs", th: "8 ดัชนีชี้วัดหลัก" },
+          { en: "Sales Forecast / Sales Gap hero", th: "ตัวเลข Sales Forecast / Sales Gap" },
+          { en: "Business Scenario A-E playbook", th: "Business Scenario A-E" },
         ],
       },
       {
@@ -424,8 +446,8 @@ const PHASES: Phase[] = [
         flow: true,
         items: [
           { en: "New behavioural data", th: "ข้อมูลพฤติกรรมชุดใหม่" },
-          { en: "Retrain the 3 models", th: "เทรน 3 โมเดลใหม่" },
-          { en: "Sharper personas & bundles", th: "Persona และเซ็ตคู่ที่แม่นขึ้น" },
+          { en: "Retrain the 6 techniques", th: "เทรน 6 เทคนิคใหม่" },
+          { en: "Sharper personas, forecasts & bundles", th: "Persona, การพยากรณ์ และเซ็ตคู่ที่แม่นขึ้น" },
         ],
       },
     ],
@@ -451,12 +473,16 @@ const CRM_FIELDS: CrmField[] = [
   // fact_billings — touchpoint 3 (in-room QR)
   { name: "fact_billings.items", type: "array", sample: "ชาไทย ×2", source: "acquisition" },
   { name: "fact_billings.beverage_amount", type: "currency", sample: "฿130", source: "acquisition" },
+  // fact_payments — touchpoint 4 (payment/POS)
+  { name: "fact_payments.payment_method", type: "text", sample: "PromptPay", source: "acquisition" },
+  // fact_csat — touchpoint 5 (campaign response & CSAT)
+  { name: "fact_csat.csat_score", type: "int", sample: "5", source: "acquisition" },
   // derived in the ETL step
   { name: "total_spend", type: "currency", sample: "฿1,630", source: "conversion" },
   { name: "is_off_peak", type: "bool", sample: "true", source: "conversion" },
   // written back by the analytics models
   { name: "persona_cluster", type: "enum", sample: "Student", source: "purchase" },
-  { name: "churn_risk_days", type: "int", sample: "27", source: "purchase" },
+  { name: "rfm_tier", type: "enum", sample: "At-Risk", source: "purchase" },
 ];
 
 const EVENT_GROUPS: { phase: PhaseKey; events: string[] }[] = [
@@ -523,8 +549,8 @@ const DESTINATIONS: { name: string; note: LStr; icon: typeof BarChart3 }[] = [
   {
     name: "Dashboard",
     note: {
-      en: "Events aggregate into the 8 core KPIs and the three goal progress bars.",
-      th: "อีเวนต์ถูกรวมเป็น 8 ดัชนีชี้วัดหลักและแถบความคืบหน้าเป้าหมาย 3 ข้อ",
+      en: "Events aggregate into the Main KPI (Total Sales Growth) and its four drill-down pages.",
+      th: "อีเวนต์ถูกรวมเป็น Main KPI (Total Sales Growth) และหน้า drill-down อีก 4 หน้า",
     },
     icon: LayoutDashboard,
   },
@@ -585,16 +611,20 @@ const PEAK_HOURS = [
 
 const GOALS: LStr[] = [
   {
-    en: "Objective 1 — grow total room-booking revenue by 15% within 6 months, using persona-targeted promotions",
-    th: "วัตถุประสงค์ที่ 1 — เพิ่มยอดขายรวมจากการจองห้อง 15% ภายใน 6 เดือน ด้วยโปรโมชันตามกลุ่มพฤติกรรม (Persona)",
+    en: "Main KPI — grow Total Sales (room + beverage revenue) by at least 15% within 6 months of CDP launch",
+    th: "Main KPI — เพิ่ม Total Sales (ยอดห้อง + เครื่องดื่ม) อย่างน้อย 15% ภายใน 6 เดือนหลังเริ่มใช้ CDP",
   },
   {
-    en: "Objective 2 — lift the beverage attach rate to 40% within 6 months, via Smart Bundling and in-room LINE OA nudges",
-    th: "วัตถุประสงค์ที่ 2 — เพิ่ม Beverage Attach Rate ให้ถึง 40% ภายใน 6 เดือน ด้วย Smart Bundling และการแจ้งเตือนผ่าน LINE OA ในห้อง",
+    en: "Driver — grow total room-booking revenue via persona-targeted promotions and off-peak dynamic pricing",
+    th: "ตัวขับเคลื่อน — เพิ่มยอดขายจากการจองห้อง ด้วยโปรโมชันตามกลุ่มพฤติกรรม (Persona) และ Dynamic Pricing นอกชั่วโมงเร่งด่วน",
   },
   {
-    en: "Objective 3 — raise combined AOV (room + round-2 beverage bill) by 15% within 6 months",
-    th: "วัตถุประสงค์ที่ 3 — เพิ่ม AOV รวม (ค่าห้อง + บิลค่าน้ำรอบสอง) ขึ้น 15% ภายใน 6 เดือน",
+    en: "Driver — lift the beverage attach rate via Smart Bundling and Recommendation-driven in-room offers",
+    th: "ตัวขับเคลื่อน — เพิ่ม Beverage Attach Rate ด้วย Smart Bundling และข้อเสนอจาก Recommendation System",
+  },
+  {
+    en: "Driver — raise combined AOV and repeat booking rate via RFM-targeted retention campaigns",
+    th: "ตัวขับเคลื่อน — เพิ่ม AOV รวมและอัตราการกลับมาจองซ้ำ ด้วยแคมเปญ Retention ที่เจาะกลุ่มจาก RFM",
   },
 ];
 
@@ -807,15 +837,15 @@ const HERO = {
     en: "Customer Data Platform · Smart Space",
     th: "ระบบ CDP สำหรับธุรกิจเช่าพื้นที่ · Smart Space",
   },
-  titlePre: { en: "From three touchpoints to ", th: "จาก 3 จุดนำเข้าข้อมูล สู่" },
+  titlePre: { en: "From five touchpoints to ", th: "จาก 5 จุดนำเข้าข้อมูล สู่" },
   titleHighlight: {
     en: "automated marketing",
     th: "การตลาดอัตโนมัติ",
   },
   titlePost: { en: "", th: "" },
   subtitle: {
-    en: "One LINE UID stitches registration, room bookings, and in-room QR beverage orders into a single profile — then three analytics models turn it into personas, bundles, and dynamic prices.",
-    th: "LINE UID เดียวเชื่อมการสมัครสมาชิก การจองห้อง และการสั่งเครื่องดื่มผ่าน QR ในห้อง ให้เป็นโปรไฟล์เดียว แล้วส่งต่อให้ 3 โมเดลวิเคราะห์แปลงเป็น Persona, เซ็ตคู่ และราคาแบบไดนามิก",
+    en: "One LINE UID stitches registration, room bookings, in-room QR orders, payments, and CSAT into a single profile — then six analytics techniques turn it into personas, forecasts, bundles, and dynamic prices.",
+    th: "LINE UID เดียวเชื่อมการสมัครสมาชิก การจองห้อง การสั่งเครื่องดื่มผ่าน QR การชำระเงิน และ CSAT ให้เป็นโปรไฟล์เดียว แล้วส่งต่อให้ 6 เทคนิควิเคราะห์แปลงเป็น Persona, การพยากรณ์, เซ็ตคู่ และราคาแบบไดนามิก",
   },
   ctaPrimary: { en: "Explore the workflow", th: "สำรวจเวิร์กโฟลว์" },
   ctaSecondary: { en: "Open live dashboard", th: "เปิดแดชบอร์ดจริง" },
@@ -960,8 +990,8 @@ const WORKFLOW_HEADING = {
     th: "นำเข้า จัดระเบียบ วิเคราะห์ ใช้งานจริง แล้ววัดผล",
   },
   blurb: {
-    en: "Three ingestion touchpoints feed three analytics models, which drive two automated marketing actions. Select a stage to see what happens inside it.",
-    th: "3 จุดนำเข้าข้อมูลป้อนเข้า 3 โมเดลวิเคราะห์ แล้วขับเคลื่อนระบบการตลาดอัตโนมัติ 2 ตัว เลือกขั้นตอนเพื่อดูว่าเกิดอะไรขึ้นข้างใน",
+    en: "Five ingestion touchpoints feed six analytics techniques, which drive two automated marketing actions. Select a stage to see what happens inside it.",
+    th: "5 จุดนำเข้าข้อมูลป้อนเข้า 6 เทคนิควิเคราะห์ แล้วขับเคลื่อนระบบการตลาดอัตโนมัติ 2 ตัว เลือกขั้นตอนเพื่อดูว่าเกิดอะไรขึ้นข้างใน",
   },
 } as const;
 
@@ -1121,12 +1151,12 @@ function WorkflowSection() {
 const CRM_HEADING = {
   eyebrow: { en: "CDP data model", th: "โมเดลข้อมูล CDP" },
   title: {
-    en: "Three tables, stitched by one LINE UID",
-    th: "3 ตาราง เชื่อมกันด้วย LINE UID เดียว",
+    en: "Five tables, stitched by one LINE UID",
+    th: "5 ตาราง เชื่อมกันด้วย LINE UID เดียว",
   },
   blurb: {
-    en: "The three ingestion touchpoints write dim_customers, fact_bookings, and fact_billings. ETL derives the combined spend, and the models write their verdicts back. Field color shows which stage produced it.",
-    th: "3 จุดนำเข้าข้อมูลเขียนลง dim_customers, fact_bookings และ fact_billings จากนั้น ETL คำนวณยอดรวม และโมเดลเขียนผลกลับเข้ามา สีของแต่ละฟิลด์บอกว่ามาจากขั้นไหน",
+    en: "The five ingestion touchpoints write dim_customers, fact_bookings, fact_billings, fact_campaign_response, and fact_csat. ETL derives the combined spend, and the models write their verdicts back. Field color shows which stage produced it.",
+    th: "5 จุดนำเข้าข้อมูลเขียนลง dim_customers, fact_bookings, fact_billings, fact_campaign_response และ fact_csat จากนั้น ETL คำนวณยอดรวม และโมเดลเขียนผลกลับเข้ามา สีของแต่ละฟิลด์บอกว่ามาจากขั้นไหน",
   },
 } as const;
 
@@ -1738,8 +1768,8 @@ const GOALS_FOOTER = {
     th: "เป้าหมายหลักของทีมการตลาด",
   },
   blurb: {
-    en: "The loop exists to move three numbers. Everything on this page feeds one of them.",
-    th: "วงจรนี้มีไว้ขยับตัวเลข 3 ตัว ทุกอย่างในหน้านี้ป้อนเข้าวัตถุประสงค์ข้อใดข้อหนึ่งเสมอ",
+    en: "The loop exists to move one number — Total Sales Growth. Everything on this page feeds it.",
+    th: "วงจรนี้มีไว้ขยับตัวเลขเดียว — Total Sales Growth ทุกอย่างในหน้านี้ป้อนเข้าเป้าหมายนี้เสมอ",
   },
   credit: {
     en: "Smart Space — Marketing OS · demo visualization with mock data",

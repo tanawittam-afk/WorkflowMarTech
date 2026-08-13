@@ -6,6 +6,7 @@ import {
   BarChart3,
   CalendarDays,
   LayoutDashboard,
+  LineChart,
   LogOut,
   Users,
   Workflow,
@@ -21,6 +22,7 @@ export const NAV_ITEMS = [
   { href: "/customers", label: "Customers", icon: Users },
   { href: "/bookings", label: "Bookings", icon: CalendarDays },
   { href: "/martech", label: "Marketing Workflow", icon: Workflow },
+  { href: "/marketing-user", label: "CDP Dashboard", icon: LineChart },
 ];
 
 export function MarketingSidebar() {

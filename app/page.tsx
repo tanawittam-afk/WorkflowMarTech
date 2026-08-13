@@ -101,9 +101,9 @@ export default function LandingPage() {
                 Every booking becomes a marketing insight.
               </h2>
               <p className="mt-2 text-sm text-ink2">
-                See the closed-loop engine behind Smart Space — how one booking flows through
-                acquisition, conversion, service, and retention, and comes back as the next
-                campaign. Available in English and Thai.
+                Two ways to explore it: a guided workflow story of how one booking becomes the
+                next campaign, or the live interactive CDP dashboard marketers actually use —
+                forecasts, customer segments, and bundling in real time.
               </p>
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row md:flex-col lg:flex-row">

@@ -1,6 +1,76 @@
 # BookingWeb — HANDOFF
 
-_Last updated: 2026-07-20 (presentation-ready pass — DEPLOYED; click-test outstanding)_
+_Last updated: 2026-08-13 (resolved the 3-way "Marketing Dashboard" duplication + adopted new BriefMartech PDFs — build/lint/typecheck clean, CDP-verified)_
+
+## ✅ Resolved duplicate Marketing Dashboards + adopted new BriefMartech PDFs (2026-08-13)
+
+Owner asked why there were two look-alike "Marketing Dashboard" surfaces in the app (landing page put `/martech` and `/marketing-user` side by side). Investigation found **three** surfaces total, never merged: `(marketing)/dashboard` (real zustand data, topbar said "Marketing Tech Dashboard"), `/marketing-user` (CDP prototype, mock engine), `/martech` (illustrative workflow story). Two new files landed in `BriefMartech/`: `Project_Progress_Report_Group 4.pdf` and `Smart Living Spaces.pdf` — both confirm/extend Proposal_V2 and add two concepts not yet in the app (8-dimension Marketing Questions table §1.2; 4-level Data Analytics ladder Descriptive→Diagnostic→Predictive→Prescriptive §6.3–6.4). Plan: `C:\Users\User\.claude\plans\bookingweb-snoopy-wadler.md`.
+
+**Owner decisions (locked):** (1) `/marketing-user` is the one real CDP Dashboard going forward; (2) `(marketing)/dashboard` becomes an **Operations Dashboard** — real booking/space/customer data only, CDP-forecast/marketing-action widgets removed (they duplicated `/marketing-user`, worse); (3) `/martech` gets a content-only refresh (arrays, not rendering/animation) to the new PDFs, same pattern as the 2026-07-20 realignment below; (4) `/marketing-user` gets the two new PDF concepts added, numbers still 100% live-computed (no hardcoding); (5) sidebar gets a new entry so the CDP Dashboard is reachable from inside the app, not just the landing page.
+
+**Route ownership after this pass:**
+| Route | Role | Data |
+|---|---|---|
+| `/dashboard` | Operations Dashboard — space/customer ops, links out to CDP Dashboard for forecasts | real zustand |
+| `/marketing-user` | **The** CDP Dashboard — Main KPI, forecast, RFM, bundling, recommendations | seeded mock engine |
+| `/martech` | Workflow story / pitch page — how the CDP pipeline works end to end | illustrative |
+
+**Changes:**
+- `components/layout/marketing-sidebar.tsx` — added `{ href: "/marketing-user", label: "CDP Dashboard" }` to `NAV_ITEMS`
+- `app/(marketing)/dashboard/page.tsx` — retitled "Operations Dashboard"; removed `GoalProgressRow`, `ChurnWinbackTable`, `BundlingPanel`, `BeverageBarChart` (CDP-duplicate widgets, files deleted, no other importers); trimmed KPI grid to 5 ops metrics; added a callout `Card` linking to `/marketing-user`; kept `OccupancyHeatmap`, `ZonePieChart`, `ConversionLineChart`, `SentimentTopicSummary` (real operational data)
+- `app/page.tsx` — landing copy under "Marketing OS" now explicitly names both surfaces (workflow story vs. live dashboard) instead of reading as one duplicated offer
+- `app/(auth)/login/login-form.tsx` — "Marketing Tech Dashboard" → "Operations Dashboard" in the sign-in copy, for consistency
+- `app/martech/martech-workflow.tsx` — content-only edits to `KPIS`, `PHASES` (Data Ingestion 3→5 touchpoints, Advanced Analytics 3→6 techniques adding Multiple Regression/RFM/Recommendation, Measure & Close the Loop reframed to the single Main KPI), `CRM_FIELDS` (+`fact_payments`, +`fact_csat`), `GOALS`, `CRM_HEADING`, `HERO`, `WORKFLOW_HEADING`, `GOALS_FOOTER`, `DESTINATIONS` — all per the new PDFs. Untouched: `PhaseKey` union naming, Framer Motion/layout code, the illustrative `TRAFFIC_SOURCES`/`CAMPAIGNS`/`REVENUE_TREND` mock-widget arrays (out of scope, purely illustrative)
+- `app/marketing-user/` — three additions to Page 1 (`pages/executive-overview.tsx`), all presentational over already-computed state, no changes to `lib/domain.ts`/`lib/history.ts`/`lib/metrics.ts`/`lib/analytics-v2.ts`:
+  - `components/analytics-ladder.tsx` (new) — the Descriptive→Diagnostic→Predictive→Prescriptive ladder made explicit, re-labeling `reg`/`scenario` values already shown elsewhere on the page
+  - `lib/marketing-questions.ts` + `components/marketing-questions-panel.tsx` (new) — the 8-dimension Marketing Questions table (4P + CX/Loyalty/Revenue), collapsed by default, each row deep-links via `onNavigate`
+  - `components/data-sources-strip.tsx` (new) — upgraded the one-line footer caption into a 5-icon Data Source strip (LINE OA/Web Booking/In-Room QR/Payment-POS/CSAT)
+  - `ExecutiveOverview`'s `onNavigate` prop widened to include `"exec"` (was `"space"|"customer"|"beverage"` only) so the Questions panel can link back to Page 1 itself
+
+### Verified
+`npm run lint` clean · `npx tsc --noEmit` clean · `npm run build` passes, 15 routes. CDP-driven click-through: `/`, `/dashboard`, `/martech`, `/marketing-user` all load; sidebar's "CDP Dashboard" and the dashboard's "Open CDP Dashboard" callout both land on `/marketing-user`; Marketing Questions panel expands and its deep-links navigate correctly (verified Product → Beverage & Campaign page). **Not verified:** true 390px device-emulation pixel check — `resize_window` on this Windows/headless setup doesn't actually change the render viewport (same root cause as the gotcha below, just via the MCP tool this time, not the CLI screenshot flag); the three new components use only grid/flex-wrap/text (no `recharts`/fixed-width elements, the actual source of that gotcha), so they're structurally low-risk, but a real device-metrics-override check is still outstanding before this is called done for mobile.
+
+## ✅ `/marketing-user` rebuilt for Proposal_V2 (2026-08-12)
+
+`BookingWeb/BriefMartech/Proposal_V2.docx` (docx modified 2026-08-11) replaced the V1 proposal `/marketing-user` was originally built from. V2 changes the shape of the dashboard, not just its wording, so the **prior lock — "`/marketing-user` stays architecturally untouched" (2026-07-20, line below) is now superseded for this route.** `(marketing)/dashboard` is unaffected and still the real-zustand closed-loop proof; this phase only touched `/marketing-user`.
+
+**What V2 required that V1 didn't:**
+- One Main KPI — **Total Sales Growth (Room + Beverage) ≥ +15% in 6 months** — instead of 8 equal-weight KPI cards
+- A **4-page drill-down** (Executive Overview → Space & Revenue → Customer & Loyalty → Beverage & Campaign) instead of one scrolling page
+- 3 new analytics techniques: **Multiple Regression** (Sales Forecast/Gap/Factor Contribution), standalone **RFM tiering** (VIP/Loyal/Potential/At-Risk), and a **Recommendation System** — on top of the existing K-Means/Apriori/Time-Series
+- A **Business Scenario A–E** playbook (resolves from live numbers, drives the Page 1 verdict banner)
+- **Human-in-the-loop**: every marketer action (coupon, bundle, dynamic pricing) now proposes → waits for approval → only then fires, via a new Approval Drawer + Impact Tracker
+
+**User decisions (locked for this phase):** (1) rebuild `/marketing-user` itself, keep Simulator as a 5th nav item, same route; (2) single page per audience — no role switcher, Page 1 is the 10-second read, Pages 2–4 are the marketer's drill-down; (3) numbers computed live from mock data, **calibrated** so the headline matches the Proposal_V2 worked example (actual ≈ +8.2%, forecast ≈ +10%, gap ≈ 5pts) rather than hardcoded; (4) Approval Drawer with Pending → Approved + a live Impact Tracker; (5) Clean-BI look (Looker/Power BI-style) with a 3-line Insight Strip (read → meaning → action) under every chart/table — this is where Descriptive→Diagnostic→Predictive→Prescriptive shows up on screen, no framework label anywhere in the UI; (6) Thai-only, English technical vocabulary.
+
+### File layout (was one 1,963-line file, now split)
+```
+app/marketing-user/
+  page.tsx                    — unchanged (server wrapper + Anuphan font)
+  marketing-user.tsx          — shell: sidebar nav (5 views) + reducer + Approval Drawer mount
+  lib/domain.ts                — types, ROOMS/BEVERAGES/CUSTOMERS/BUNDLE_RULES, Proposal type
+  lib/history.ts                — seeded PRNG + generateHistory() — UNCHANGED from V1, no distortion
+  lib/metrics.ts                — computeMetrics() + BASELINES, extended with bookingCount30/avgRoomRevPerBooking30/offPeakShare30
+  lib/reducer.ts                 — appReducer, now with propose/approveProposal/rejectProposal
+  lib/analytics-v2.ts            — regressionForecast(), rfmTiers(), recommendFor() — the 3 new V2 techniques
+  lib/insights.ts                — Insight Strip copy generators (read/meaning/action per section)
+  lib/scenarios.ts               — Business Scenario A–E resolver
+  components/*.tsx               — primitives, kpi-tile, insight-strip, approval-drawer, rfm-table,
+                                    segment-scatter, forecast-chart, association-rules-table,
+                                    recommendation-cards, + the V1 pieces moved as-is (occupancy-heatmap,
+                                    service-charts, bundle-panel, event-log, simulator)
+  pages/*.tsx                     — ExecutiveOverview, SpaceRevenue, CustomerLoyalty, BeverageCampaign
+```
+
+### The regression calibration — why it's not hardcoded
+`lib/analytics-v2.ts`'s `regressionForecast()` fits a quadratic in calendar month through 3 checkpoints — launch (month 0, growth 0% by definition), month 3 (`MONTH_3_GROWTH_PCT = 4.9`, a fixed historical input, same pattern as `BASELINES` in `metrics.ts`), and **now** (computed live from `computeMetrics(state).roomRev30 + bevRev30` vs a fixed pre-CDP baseline derived from `M0`). Only the "now" point is live — approving proposals or booking through the Simulator moves it, and the whole forecast recomputes. `BASELINE_TOTAL_SALES_30D` is picked so the *initial* state reads exactly +8.2%, matching the Proposal_V2 example; the month-3 checkpoint was solved algebraically so the same fit lands the 12-month forecast at +10.0% (verified via a throwaway calibration script, not asserted — rerun by hand if `MONTH_3_GROWTH_PCT` or the baseline formula ever changes).
+
+An earlier attempt tried to get this growth number by skewing per-booking revenue/counts across day-offset windows inside `generateHistory()` — abandoned: with only 15 seeded customers (~150 bookings), any window-count skew was swamped by seed noise, and a revenue multiplier large enough to compensate visibly distorted individual booking amounts elsewhere (heatmap tooltips, RFM monetary column). `lib/history.ts` is therefore **byte-for-byte the V1 generator** — no lift, no distortion. Keep it that way; do the growth-shaping in `analytics-v2.ts` only.
+
+### Verified
+`npm run build` / `npm run lint` / `npx tsc --noEmit` all clean. Dev server: `/marketing-user` and `/martech` and `/` return 200, SSR HTML shows `+8.2%` hero and `10.0%` forecast (no NaN). **Not click-tested** — no browser automation available this session (Claude-in-Chrome extension not connected). Before shipping, click through all 5 nav items at 390px and 1440px, confirm the `ResponsiveContainer` `min-w-0` gotcha (below) doesn't regress on the new `forecast-chart.tsx` / `segment-scatter.tsx`, and walk one full approve → Impact Tracker cycle plus one full Simulator booking to confirm the Page 1 hero number moves.
+
+---
 
 ## ⏳ Presentation-ready pass (for class demo 2026-07-21)
 
